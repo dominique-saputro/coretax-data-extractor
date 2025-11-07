@@ -18,14 +18,17 @@ BASE_URL = "https://coretaxdjp.pajak.go.id"
 token_component = components.html(
     """
     <script>
-    const handleMessage = (event) => {
-        if (event.data && event.data.type === "SET_TOKEN") {
-            const token = event.data.token?.access_token || event.data.token;
-            console.log("📥 Received token from extension:", token);
-            Streamlit.setComponentValue(token);
-        }
-    };
-    window.addEventListener("message", handleMessage);
+    window.token = null;
+
+    // Listen for messages from the extension
+    window.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "SET_TOKEN" && event.data.token) {
+        console.log("[Streamlit TokenReceiver] 🔑 Token received:", event.data.token);
+        window.token = event.data.token.access_token || event.data.token;
+        // Send it to Streamlit backend
+        Streamlit.setComponentValue(window.token);
+    }
+    });
     </script>
     """,
     height=0,
