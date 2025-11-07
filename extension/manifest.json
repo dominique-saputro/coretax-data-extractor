@@ -1,0 +1,33 @@
+{
+  "name": "Coretax Token Sniffer",
+  "version": "1.0",
+  "manifest_version": 3,
+  "description": "Capture Coretax access tokens for development use.",
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://coretaxdjp.pajak.go.id/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://coretaxdjp.pajak.go.id/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["page_hook.js"],
+      "matches": ["https://coretaxdjp.pajak.go.id/*"]
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Coretax Token Dashboard</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --muted: #6b7280;
+        --accent: #0f766e;
+        --danger: #b91c1c;
+        --card: #f8fafc;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Inter, system-ui, Segoe UI, Roboto, "Helvetica Neue", Arial;
+        background: var(--bg);
+        color: #0f172a;
+      }
+      .wrap {
+        width: 460px;
+        padding: 12px;
+        box-sizing: border-box;
+      }
+      h2 {
+        margin: 0 0 8px 0;
+        font-size: 17px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      h2 button.refresh {
+        background: #e6eef0;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0f172a;
+        font-weight: bold;
+      }
+      .meta {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .pill {
+        background: var(--card);
+        padding: 6px 8px;
+        border-radius: 8px;
+        font-size: 12px;
+        color: var(--muted);
+        border: 1px solid #e6eef0;
+      }
+      .tokenBox {
+        background: #0f172a;
+        color: #fff;
+        padding: 10px;
+        border-radius: 8px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",
+          "Segoe UI Mono";
+        font-size: 11px;
+        white-space: pre-wrap;
+        max-height: 160px;
+        overflow: auto;
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      button {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 8px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.2s background;
+      }
+      button.secondary {
+        background: #e6eef0;
+        color: #0f172a;
+      }
+      button.danger {
+        background: var(--danger);
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      small.muted {
+        display: block;
+        color: var(--muted);
+        margin-top: 8px;
+        font-size: 12px;
+      }
+      pre.json {
+        background: #f3f4f6;
+        padding: 10px;
+        border-radius: 8px;
+        max-height: 200px;
+        overflow: auto;
+        font-size: 12px;
+      }
+      #history {
+        margin-top: 10px;
+        font-size: 12px;
+      }
+      .history-entry {
+        border-top: 1px solid #e6eef0;
+        padding-top: 4px;
+        margin-top: 4px;
+      }
+      .empty {
+        color: var(--muted);
+        padding: 14px;
+        border: 1px dashed #e6eef0;
+        border-radius: 8px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h2>
+        Coretax Token
+        <button id="refreshBtn" class="refresh" title="Reload">⟳</button>
+      </h2>
+
+      <div class="meta">
+        <div id="status" class="pill">No token</div>
+        <div id="exp" class="pill" style="display: none"></div>
+        <div id="time" class="pill" style="display: none"></div>
+      </div>
+
+      <div id="tokenArea">
+        <div id="tokenShort" class="tokenBox">No token captured yet.</div>
+        <div class="controls">
+          <button id="copyBtn">Copy access_token</button>
+          <button id="downloadBtn" class="secondary">Download JSON</button>
+          <button id="openApiBtn" class="secondary">Open API Handler</button>
+          <button id="clearBtn" class="danger">Clear</button>
+        </div>
+      </div>
+
+      <small class="muted">Full token JSON (read-only)</small>
+      <pre id="tokenJson" class="json">No token captured yet.</pre>
+
+      <div id="history">
+        <small class="muted">Recent token captures</small>
+        <div id="historyList" class="empty">No captures yet.</div>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
