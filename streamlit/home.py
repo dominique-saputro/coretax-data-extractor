@@ -34,7 +34,26 @@ window.addEventListener("message", (event) => {
 });
 </script>
 """, unsafe_allow_html=True)
-token = st.session_state["token"]
+# --- Read token if already stored ---
+token = None
+if "token" not in st.session_state:
+    # Try recover from localStorage using Streamlit JS -> Python bridge
+    st.markdown("""
+    <script>
+    const saved = localStorage.getItem("coretax_token");
+    if (saved) {
+        window.parent.postMessage({type: "streamlit_token_recover", token: saved}, "*");
+    }
+    </script>
+    """, unsafe_allow_html=True)
+else:
+    token = st.session_state["token"]
+
+# --- Listen for recovery ---
+token_input = st.text_input("Debug Token (auto-filled)", value=token or "")
+if token_input:
+    st.session_state["token"] = token_input
+    token = token_input
 
 # query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
 # token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
