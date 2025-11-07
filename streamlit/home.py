@@ -27,7 +27,8 @@ if encoded:
         # Decode + decompress
         compressed = base64.b64decode(padded)
         decompressed = zlib.decompress(compressed)
-        token = json.loads(decompressed.decode("utf-8"))
+        token_json = json.loads(decompressed.decode("utf-8"))
+        token = token_json.get("access_token", [])
 
         st.success("✅ Token successfully decoded")
         st.session_state["token"] = token["access_token"]
