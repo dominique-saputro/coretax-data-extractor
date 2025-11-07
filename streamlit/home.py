@@ -35,6 +35,7 @@ if encoded:
         st.error(f"Failed to decode token: {e}")
 
 if token:
+    st.write(token)
     st.session_state["token"] = token
     status_placeholder = st.empty()
     status_placeholder.info("Validating token with Coretax API...")

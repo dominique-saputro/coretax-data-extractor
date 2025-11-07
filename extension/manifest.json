@@ -26,7 +26,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["page_hook.js"],
+      "resources": ["pako.min.js","page_hook.js"],
       "matches": ["https://coretaxdjp.pajak.go.id/*"]
     }
   ]
