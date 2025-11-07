@@ -31,12 +31,11 @@ if encoded:
         token = token_json.get("access_token", [])
 
         st.success("✅ Token successfully decoded")
-        st.session_state["token"] = token["access_token"]
     except Exception as e:
         st.error(f"Failed to decode token: {e}")
 
 if token:
-    st.write(token)
+    # st.write(token)
     st.session_state["token"] = token
     status_placeholder = st.empty()
     status_placeholder.info("Validating token with Coretax API...")
