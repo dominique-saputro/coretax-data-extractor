@@ -13,11 +13,27 @@ st.write("# 📊 Coretax Data Extractor")
 
 BASE_URL = "https://coretaxdjp.pajak.go.id"
 
-query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
-token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
+# Placeholder to hold token
+token_placeholder = st.empty()
+
+# JS listener to catch the postMessage event
+st.markdown("""
+<script>
+window.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SET_TOKEN") {
+    const token = event.data.token;
+    window.parent.postMessage({type: "streamlit:setToken", token: token}, "*");
+  }
+});
+</script>
+""", unsafe_allow_html=True)
+token = st.session_state.get("token")
+
+# query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
+# token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
 
 if token:
-    st.session_state["token"] = token
+    # st.session_state["token"] = token
     status_placeholder = st.empty()
     status_placeholder.info("Validating token with Coretax API...")
     try:

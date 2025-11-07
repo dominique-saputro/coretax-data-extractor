@@ -128,8 +128,21 @@ openApiBtn.addEventListener('click', () => {
       alert('No access_token to send.');
       return;
     }
-    const apiUrl = `https://coretax-orientcomp.streamlit.app?token=${encodeURIComponent(t.access_token)}`;
-    chrome.tabs.create({ url: apiUrl });
+    // const apiUrl = `https://coretax-orientcomp.streamlit.app?token=${encodeURIComponent(t.access_token)}`;
+    // chrome.tabs.create({ url: apiUrl });
+
+    // Open Streamlit app without token in URL
+    const apiUrl = "https://coretax-orientcomp.streamlit.app";
+    chrome.tabs.create({ url: apiUrl }, (tab) => {
+      // Wait a second for Streamlit to load
+      setTimeout(() => {
+        // Send the token via postMessage
+        chrome.tabs.sendMessage(tab.id, {
+          type: "SET_TOKEN",
+          token: t.access_token,
+        });
+      }, 2000);
+    });
   });
 });
 
