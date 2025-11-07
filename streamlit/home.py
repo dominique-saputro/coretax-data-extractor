@@ -15,25 +15,21 @@ st.write("# 📊 Coretax Data Extractor")
 BASE_URL = "https://coretaxdjp.pajak.go.id"
 
 # Placeholder to hold token
-token_component = components.html(
-    """
-    <script>
-    window.token = null;
-
-    // Listen for messages from the extension
-    window.addEventListener("message", (event) => {
-    if (event.data && event.data.type === "SET_TOKEN" && event.data.token) {
-        console.log("[Streamlit TokenReceiver] 🔑 Token received:", event.data.token);
-        window.token = event.data.token.access_token || event.data.token;
-        // Send it to Streamlit backend
-        Streamlit.setComponentValue(window.token);
-    }
-    });
-    </script>
-    """,
-    height=0,
-)
-token = token_component
+st.markdown("""
+<script>
+window.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "CORETAX_TOKEN") {
+    console.log("[Streamlit] Received token:", event.data.token);
+    const streamlitFrame = window.parent || window;
+    streamlitFrame.postMessage(
+      { type: "streamlit:setSessionState", key: "token", value: event.data.token },
+      "*"
+    );
+  }
+});
+</script>
+""", unsafe_allow_html=True)
+token = st.session_state.get("token")
 
 # query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
 # token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
