@@ -39,7 +39,6 @@ token = components.html(
 # token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
 
 if token:
-    st.write(st.session_state["token"])
     st.session_state["token"] = token
     status_placeholder = st.empty()
     status_placeholder.info("Validating token with Coretax API...")
@@ -49,6 +48,8 @@ if token:
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
         }
+        
+        st.write(headers)
         response = requests.post(url, headers=headers)
         response.raise_for_status()
         data = response.json()
