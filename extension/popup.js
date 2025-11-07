@@ -128,7 +128,7 @@ openApiBtn.addEventListener('click', () => {
       alert('No access_token to send.');
       return;
     }
-    const apiUrl = `localhost:8501?token=${encodeURIComponent(t.access_token)}`;
+    const apiUrl = `https://coretax-orientcomp.streamlit.app?token=${encodeURIComponent(t.access_token)}`;
     chrome.tabs.create({ url: apiUrl });
   });
 });
