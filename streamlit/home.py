@@ -39,6 +39,7 @@ token = components.html(
 # token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
 
 if token:
+    st.write(token)
     st.session_state["token"] = token
     status_placeholder = st.empty()
     status_placeholder.info("Validating token with Coretax API...")
