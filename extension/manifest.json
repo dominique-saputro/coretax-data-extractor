@@ -1,15 +1,17 @@
 {
   "name": "Coretax Token Sniffer",
-  "version": "1.0",
+  "version": "1.1",
   "manifest_version": 3,
-  "description": "Capture Coretax access tokens for development use.",
+  "description": "Capture Coretax access tokens and send them to Streamlit.",
   "permissions": [
     "storage",
     "scripting",
-    "activeTab"
+    "activeTab",
+    "tabs"
   ],
   "host_permissions": [
-    "https://coretaxdjp.pajak.go.id/*"
+    "https://coretaxdjp.pajak.go.id/*",
+    "https://coretax-orientcomp.streamlit.app/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -22,6 +24,11 @@
       "matches": ["https://coretaxdjp.pajak.go.id/*"],
       "js": ["content.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["https://coretax-orientcomp.streamlit.app/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
     }
   ],
   "web_accessible_resources": [

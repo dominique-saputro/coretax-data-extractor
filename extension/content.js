@@ -31,19 +31,6 @@ window.addEventListener("message", (event) => {
   );
 });
 
-// --- Forward message to streamlit app ---
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "SET_TOKEN") {
-    window.postMessage(
-      {
-        type: "SET_TOKEN",
-        token: message.token,
-      },
-      "*"
-    );
-  }
-});
-
 // --- Optional: direct fetch hook (fallback if page_hook is blocked) ---
 (function () {
   const originalFetch = window.fetch;
@@ -71,3 +58,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return response;
   };
 })();
+
+window.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SET_TOKEN") {
+    console.log("[Coretax Sniffer] 🪄 Received token in Streamlit context:", event.data.token);
+  }
+});
