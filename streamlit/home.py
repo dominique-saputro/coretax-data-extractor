@@ -19,23 +19,28 @@ st.markdown("""
 <script>
 window.addEventListener("message", (event) => {
   if (event.data && event.data.type === "CORETAX_TOKEN") {
-    console.log("[Streamlit] Received token:", event.data.token);
-    const streamlitFrame = window.parent || window;
-    streamlitFrame.postMessage(
-      { type: "streamlit:setSessionState", key: "token", value: event.data.token },
-      "*"
-    );
+    console.log("[Streamlit Bridge] 🪄 Received token:", event.data);
+    const token = event.data.token?.access_token || event.data.token;
+    if (token) {
+      // Save token to localStorage for persistence
+      localStorage.setItem("coretax_token", token);
+
+      // Refresh the page with query param (small token-safe redirect)
+      const newUrl = window.location.origin + window.location.pathname + "?token_ready=1";
+      window.history.replaceState({}, "", newUrl);
+      window.location.reload();
+    }
   }
 });
 </script>
 """, unsafe_allow_html=True)
-token = st.session_state.get("token")
+token = st.session_state["token"]
 
 # query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
 # token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
 
 if token:
-    st.session_state["token"] = token
+    # st.session_state["token"] = token
     status_placeholder = st.empty()
     status_placeholder.info("Validating token with Coretax API...")
     try:
