@@ -5,30 +5,6 @@ import pandas as pd
 import io
 import time
 
-def token_listener(key="token_listener"):
-    component = components.declare_component(
-        "token_listener",
-        """
-        <script>
-        let tokenSent = false;
-
-        window.addEventListener("message", (event) => {
-          if (event.data && event.data.type === "SET_TOKEN" && !tokenSent) {
-            const token = event.data.token?.access_token || event.data.token;
-            console.log("📥 Received token via postMessage:", token);
-
-            // Send token to Streamlit via postMessage
-            const streamlitDoc = window.parent.document;
-            const ev = new CustomEvent("streamlit:setComponentValue", { detail: token });
-            streamlitDoc.dispatchEvent(ev);
-            tokenSent = true;
-          }
-        });
-        </script>
-        """,
-    )
-    return component(key=key)
-
 st.set_page_config(
     page_title="Coretax Data Extractor",
     page_icon="📊",
@@ -39,7 +15,21 @@ st.write("# 📊 Coretax Data Extractor")
 BASE_URL = "https://coretaxdjp.pajak.go.id"
 
 # Placeholder to hold token
-token = token_listener()
+token = components.html(
+    """
+    <script>
+    let tokenValue = null;
+    window.addEventListener("message", (event) => {
+      if (event.data && event.data.type === "SET_TOKEN") {
+        tokenValue = event.data.token?.access_token || event.data.token;
+        console.log("📥 Received token:", tokenValue);
+        Streamlit.setComponentValue(tokenValue);
+      }
+    });
+    </script>
+    """,
+    height=0
+)
 
 # query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
 # token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
