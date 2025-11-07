@@ -58,9 +58,3 @@ window.addEventListener("message", (event) => {
     return response;
   };
 })();
-
-window.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SET_TOKEN") {
-    console.log("[Coretax Sniffer] 🪄 Received token in Streamlit context:", event.data.token);
-  }
-});

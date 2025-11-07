@@ -1,9 +1,8 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import requests
-import pandas as pd
-import io
-import time
+import base64
+import zlib
+import json
 
 st.set_page_config(
     page_title="Coretax Data Extractor",
@@ -14,52 +13,29 @@ st.write("# 📊 Coretax Data Extractor")
 
 BASE_URL = "https://coretaxdjp.pajak.go.id"
 
-# Placeholder to hold token
-st.markdown("""
-<script>
-window.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "CORETAX_TOKEN") {
-    console.log("[Streamlit Bridge] 🪄 Received token:", event.data);
-    const token = event.data.token?.access_token || event.data.token;
-    if (token) {
-      // Save token to localStorage for persistence
-      localStorage.setItem("coretax_token", token);
-
-      // Refresh the page with query param (small token-safe redirect)
-      const newUrl = window.location.origin + window.location.pathname + "?token_ready=1";
-      window.history.replaceState({}, "", newUrl);
-      window.location.reload();
-    }
-  }
-});
-</script>
-""", unsafe_allow_html=True)
-# --- Read token if already stored ---
-token = None
-if "token" not in st.session_state:
-    # Try recover from localStorage using Streamlit JS -> Python bridge
-    st.markdown("""
-    <script>
-    const saved = localStorage.getItem("coretax_token");
-    if (saved) {
-        window.parent.postMessage({type: "streamlit_token_recover", token: saved}, "*");
-    }
-    </script>
-    """, unsafe_allow_html=True)
-else:
-    token = st.session_state["token"]
-
-# --- Listen for recovery ---
-token_input = st.text_input("Debug Token (auto-filled)", value=token or "")
-if token_input:
-    st.session_state["token"] = token_input
-    token = token_input
-
-# query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
+query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
 # token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
+encoded = query_params.get("ct", [None])[0] if isinstance(query_params.get("ct"), list) else query_params.get("ct")
+
+token = None
+if encoded:
+    try:
+        # Convert URL-safe base64 → binary
+        b64 = encoded.replace('-', '+').replace('_', '/')
+        padded = b64 + '=' * (-len(b64) % 4)
+
+        # Decode + decompress
+        compressed = base64.b64decode(padded)
+        decompressed = zlib.decompress(compressed)
+        token = json.loads(decompressed.decode("utf-8"))
+
+        st.success("✅ Token successfully decoded")
+        st.session_state["token"] = token["access_token"]
+    except Exception as e:
+        st.error(f"Failed to decode token: {e}")
 
 if token:
-    # st.session_state["token"] = token
+    st.session_state["token"] = token
     status_placeholder = st.empty()
     status_placeholder.info("Validating token with Coretax API...")
     try:
@@ -68,8 +44,6 @@ if token:
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
         }
-        
-        st.write(headers)
         response = requests.post(url, headers=headers)
         response.raise_for_status()
         data = response.json()
@@ -89,4 +63,4 @@ if token:
         status_placeholder.empty()
         st.error(f"Request failed: {e}")
 else:
-    st.warning("No token received yet. Please capture it via the extension.")
+    st.warning("No token provided in the URL.")

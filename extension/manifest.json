@@ -6,12 +6,10 @@
   "permissions": [
     "storage",
     "scripting",
-    "activeTab",
-    "tabs"
+    "activeTab"
   ],
   "host_permissions": [
-    "https://coretaxdjp.pajak.go.id/*",
-    "https://coretax-orientcomp.streamlit.app/*"
+    "https://coretaxdjp.pajak.go.id/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -24,11 +22,6 @@
       "matches": ["https://coretaxdjp.pajak.go.id/*"],
       "js": ["content.js"],
       "run_at": "document_start"
-    },
-    {
-      "matches": ["https://coretax-orientcomp.streamlit.app/*"],
-      "js": ["content.js"],
-      "run_at": "document_end"
     }
   ],
   "web_accessible_resources": [

@@ -83,6 +83,21 @@ function load() {
   });
 }
 
+function compressAndEncode(token) {
+  // 1️⃣ Convert to JSON and then to UTF-8 bytes
+  const json = JSON.stringify(token);
+  const bytes = new TextEncoder().encode(json);
+
+  // 2️⃣ Compress using pako (tiny gzip library)
+  const compressed = pako.deflate(bytes);
+
+  // 3️⃣ Encode to base64 (URL-safe)
+  return btoa(String.fromCharCode(...compressed))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
 // --- button actions ---
 copyBtn.addEventListener('click', async () => {
   chrome.storage.local.get('coretax_token', async (d) => {
@@ -128,21 +143,9 @@ openApiBtn.addEventListener('click', () => {
       alert('No access_token to send.');
       return;
     }
-    // const apiUrl = `https://coretax-orientcomp.streamlit.app?token=${encodeURIComponent(t.access_token)}`;
-    // chrome.tabs.create({ url: apiUrl });
-
-    // Open Streamlit app without token in URL
-    const apiUrl = "https://coretax-orientcomp.streamlit.app";
-    chrome.tabs.create({ url: apiUrl }, (tab) => {
-      // Wait a second for Streamlit to load
-      setTimeout(() => {
-        // Send the token via postMessage
-        chrome.tabs.sendMessage(tab.id, {
-          type: "SET_TOKEN",
-          token: t.access_token,
-        });
-      }, 2000);
-    });
+    const shortToken = compressAndEncode(t);
+    const apiUrl = `https://coretax-orientcomp.streamlit.app?ct=${shortToken}`;
+    chrome.tabs.create({ url: apiUrl });
   });
 });
 
