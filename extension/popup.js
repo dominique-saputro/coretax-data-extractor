@@ -144,7 +144,8 @@ openApiBtn.addEventListener('click', () => {
       return;
     }
     const shortToken = compressAndEncode(t);
-    const apiUrl = `https://coretax-orientcomp.streamlit.app?ct=${shortToken}`;
+    // const apiUrl = `https://coretax-orientcomp.streamlit.app?ct=${shortToken}`;
+    const apiUrl = `http://localhost:8501?token=${t.access_token}`;
     chrome.tabs.create({ url: apiUrl });
   });
 });

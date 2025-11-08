@@ -14,25 +14,25 @@ st.write("# 📊 Coretax Data Extractor")
 BASE_URL = "https://coretaxdjp.pajak.go.id"
 
 query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
-# token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
-encoded = query_params.get("ct", [None])[0] if isinstance(query_params.get("ct"), list) else query_params.get("ct")
+token = query_params.get("token", [None])[0] if isinstance(query_params.get("token"), list) else query_params.get("token")
+# encoded = query_params.get("ct", [None])[0] if isinstance(query_params.get("ct"), list) else query_params.get("ct")
 
-token = None
-if encoded:
-    try:
-        # Convert URL-safe base64 → binary
-        b64 = encoded.replace('-', '+').replace('_', '/')
-        padded = b64 + '=' * (-len(b64) % 4)
+# token = None
+# if encoded:
+#     try:
+#         # Convert URL-safe base64 → binary
+#         b64 = encoded.replace('-', '+').replace('_', '/')
+#         padded = b64 + '=' * (-len(b64) % 4)
 
-        # Decode + decompress
-        compressed = base64.b64decode(padded)
-        decompressed = zlib.decompress(compressed)
-        token_json = json.loads(decompressed.decode("utf-8"))
-        token = token_json.get("access_token", [])
+#         # Decode + decompress
+#         compressed = base64.b64decode(padded)
+#         decompressed = zlib.decompress(compressed)
+#         token_json = json.loads(decompressed.decode("utf-8"))
+#         token = token_json.get("access_token", [])
 
-        st.success("✅ Token successfully decoded")
-    except Exception as e:
-        st.error(f"Failed to decode token: {e}")
+#         st.success("✅ Token successfully decoded")
+#     except Exception as e:
+#         st.error(f"Failed to decode token: {e}")
 
 if token:
     # st.write(token)

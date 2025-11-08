@@ -45,7 +45,7 @@ def get_period_end_date(period_code, year):
     except Exception:
         return ""
 
-st.set_page_config(page_title="Pajak Masukan", layout="centered")
+st.set_page_config(page_title="Pajak Masukan", layout="centered", page_icon="⚖️")
 st.title("⚖️ Pajak Masukan")
 
 # --- 1️⃣ Token Validation ---
@@ -151,6 +151,7 @@ if st.button("🔍 Fetch Data from Coretax"):
         st.success(f"✅ Success! Retrieved {len(record_ids)} records.")
         
         # get details for all headers
+        status_placeholder.info("Fetching details from Coretax API...")
         details = []
         for i, rid in enumerate(record_ids):
             # Ping KeepAlive every 10 requests
@@ -178,6 +179,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 # st.write(detail_data)
 
             except requests.exceptions.RequestException as e:
+                status_placeholder.empty()
                 st.warning(f"⚠️ Failed to fetch details for RecordId {rid}: {e}")
                 
     except requests.exceptions.RequestException as e:
@@ -187,9 +189,11 @@ if st.button("🔍 Fetch Data from Coretax"):
 # --- 4️⃣ Process Data into Excel ---                
     if details:
         try:
+            status_placeholder.empty()
             df_details = pd.json_normalize(details)
             st.success(f"✅ Fetched details for {len(df_details)} records.")
             # st.dataframe(df_details)
+            status_placeholder.info("Compiling into Excel...")
             payloads = details
             
             all_rows = []
@@ -277,6 +281,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             df_all["tanggal"] = df_all["tanggal"].apply(format_date)
 
             # st.write(df_all.columns.tolist())
+            status_placeholder.empty()
             st.dataframe(df_all)
 
             # Export to excel
@@ -289,8 +294,10 @@ if st.button("🔍 Fetch Data from Coretax"):
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
         except Exception as e:
+            status_placeholder.empty()
             st.error(f"Error: {e}")
     else:
+        status_placeholder.empty()
         st.warning("No details were retrieved.")   
         
     
