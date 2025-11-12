@@ -118,7 +118,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             },
             {
                 "PropertyName": "TaxInvoiceStatus",
-                "Value": "APPROVED",
+                "Value": "CREDITED",
                 "MatchMode": "equals",
                 "CaseSensitive": True,
                 "AsString": False
