@@ -38,8 +38,10 @@ st.title("📄 Lampiran SPT")
 st.subheader("Authorization")
 token = st.session_state.get("token", None)
 taxpayer_id = st.session_state.get("taxpayer_id", None)
+taxpayer_name = st.session_state.get("taxpayer_name", None)
 if token and taxpayer_id:
     keepalive(token)
+    st.write(f"You are connected to {taxpayer_name}")
 else:
     if not token:
         st.warning("Token invalid.")

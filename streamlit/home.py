@@ -59,9 +59,11 @@ if token:
         # st.dataframe(df)
         
         taxpayer_id = data.get("taxpayer_id")
+        taxpayer_name = data.get("full_name")
         # st.write(taxpayer_id)
         
         st.session_state["taxpayer_id"] = taxpayer_id
+        st.session_state["taxpayer_name"] = taxpayer_name
         status_placeholder.empty()
         st.success("✅ Token Valid")
         st.sidebar.success("Select a extraction data above.")
