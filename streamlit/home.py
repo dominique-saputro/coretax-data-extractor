@@ -25,7 +25,6 @@ else:
 
     # ------------ Use this for production
     encoded = query_params.get("ct", [None])[0] if isinstance(query_params.get("ct"), list) else query_params.get("ct")
-
     token = None
     if encoded:
         try:
@@ -60,6 +59,7 @@ if token:
             taxpayer_id = data.get("taxpayer_id")
             taxpayer_name = data.get("full_name")
 
+            st.session_state["token"] = token
             st.session_state["taxpayer_id"] = taxpayer_id
             st.session_state["taxpayer_name"] = taxpayer_name
             st.session_state["validated"] = True
