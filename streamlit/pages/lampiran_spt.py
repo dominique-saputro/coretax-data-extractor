@@ -31,7 +31,7 @@ def format_date(date_str):
     except Exception:
         return ""
 
-st.set_page_config(page_title="Pajak Keluaran", layout="centered", page_icon="📄")
+st.set_page_config(page_title="Lampiran SPT", layout="centered", page_icon="📄")
 st.title("📄 Lampiran SPT")
 
 # --- 1️⃣ Token Validation ---
