@@ -83,7 +83,7 @@ months = st.multiselect(
 )
 period = [month_mapping[m] for m in months]
 year = st.number_input("TaxInvoiceYear", value=2025)
-rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=100)
+rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=100, step=50)
 
 # --- 3️⃣ Fetch Data ---
 if st.button("🔍 Fetch Data from Coretax"):
