@@ -104,11 +104,11 @@ def parse_lampiran(spt_choice,details):
                     df_l3 = pd.DataFrame()
                 else:
                     records = raw_data.get("Data", []) if isinstance(raw_data, dict) else []
-                    df_l3 = pd.DataFrame(records)[["TIN", "Name", "TaxArticle", "WithholdingSlipsNumber", "WithholdingSlipsDate", "TaxObjectCode", "TaxObject", "GrossIncome", "IncomeTax","PlaceOfBusinessID", "RevenueCode", "Status"]]
+                    df_l3 = pd.DataFrame(records)[["TIN", "Name", "TaxArticle", "WithholdingNumber", "WithholdingDate", "TaxObjectCode", "TaxObject", "GrossIncome", "IncomeTax","PlaceOfBusinessID", "RevenueCode", "Status"]]
                     df_l3 = clean_taxcertificate(df_l3)
             except Exception as e:
                 print("Error parsing df_l3:", e)
-                df_l3 = pd.DataFrame(columns=["TIN", "Name", "TaxArticle", "WithholdingSlipsNumber", "WithholdingSlipsDate", "TaxObjectCode", "TaxObject", "GrossIncome", "IncomeTax","PlaceOfBusinessID", "RevenueCode", "Status"])
+                df_l3 = pd.DataFrame(columns=["TIN", "Name", "TaxArticle", "WithholdingNumber", "WithholdingDate", "TaxObjectCode", "TaxObject", "GrossIncome", "IncomeTax","PlaceOfBusinessID", "RevenueCode", "Status"])
             
             dfs = {
                 "L-IA":df_l1a,

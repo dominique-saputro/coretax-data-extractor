@@ -230,7 +230,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                     
             # Summary        
             # st.dataframe(details)
-            # st.dataframe(dfs["DAFTAR-I"])
+            # st.dataframe(dfs["L-III"])
             summary = pd.DataFrame([
                 {"Sheet Name": name, "Record Count": len(df)}
                 for name, df in dfs.items()
