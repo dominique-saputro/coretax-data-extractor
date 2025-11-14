@@ -12,7 +12,7 @@ st.set_page_config(
 st.write("# 📊 Coretax Data Extractor")
 
 BASE_URL = "https://coretaxdjp.pajak.go.id"
-userid = "12345566"
+userid = "0014815146614000"
 
 query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
 
