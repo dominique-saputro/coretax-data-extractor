@@ -214,7 +214,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 "FormDataObj_TransactionDetailsData_Discount": "discount",
                 "FormDataObj_TransactionDetailsData_VATRate": "ppn",
                 "FormDataObj_TransactionDocumentData_Period": "sptmasa",
-                "FormDataObj_TransactionDetailsData_TotalPrice": "jmldpp",
+                "FormDataObj_TransactionDetailsData_TaxBaseTotal": "jmldpp",
                 "FormDataObj_TransactionDetailsData_VAT": "jmlppn",
                 "BuyerName": "nmsup",
                 "FormDataObj_TransactionDetailsData_Name": "nmbrg",
@@ -255,7 +255,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                         "FormDataObj_TransactionDetailsData_UnitPrice": d.get("UnitPrice", 0),
                         "FormDataObj_TransactionDetailsData_Discount": d.get("Discount", 0),
                         "FormDataObj_TransactionDetailsData_VATRate": d.get("VATRate", 0),
-                        "FormDataObj_TransactionDetailsData_TotalPrice": d.get("TotalPrice", 0),
+                        "FormDataObj_TransactionDetailsData_TaxBaseTotal": d.get("TaxBaseTotal", 0),
                         "FormDataObj_TransactionDetailsData_VAT": d.get("VAT", 0),
 
                         # include parent-level info from FormDataObj_TransactionDocumentData
