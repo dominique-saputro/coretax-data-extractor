@@ -12,7 +12,7 @@ st.set_page_config(
 st.write("# 📊 Coretax Data Extractor")
 
 BASE_URL = "https://coretaxdjp.pajak.go.id"
-userid = "0014815146614000"
+userid = "00148151466140001111"
 
 query_params = st.query_params  # Streamlit ≥ 1.30 (modern API)
 
@@ -62,6 +62,7 @@ if token:
             taxpayer_name = data.get("full_name")
             tin = data.get("user_name")
             
+            # ------------ With Safety guard
             if tin == userid: 
                 st.session_state["token"] = token
                 st.session_state["taxpayer_id"] = taxpayer_id
@@ -74,6 +75,16 @@ if token:
             else:
                 status_placeholder.empty()
                 st.error(f"❌ Invalid — User {taxpayer_name or ''} not registered")
+                
+            # ------------ Without Safety guard
+            # st.session_state["token"] = token
+            # st.session_state["taxpayer_id"] = taxpayer_id
+            # st.session_state["taxpayer_name"] = taxpayer_name
+            # st.session_state["validated"] = True
+
+            # status_placeholder.empty()
+            # st.success(f"✅ Token Valid — Welcome {taxpayer_name or ''}")
+            # st.sidebar.success("Select a data extraction page above.")
                 
         except requests.exceptions.RequestException as e:
             status_placeholder.empty()
