@@ -45,8 +45,8 @@ def get_period_end_date(period_code, year):
     except Exception:
         return ""
 
-st.set_page_config(page_title="Pajak Masukan", layout="centered", page_icon="⚖️")
-st.title("⚖️ Pajak Masukan")
+st.set_page_config(page_title="Retur Masukan", layout="centered", page_icon="⚖️")
+st.title("⚖️ Retur Masukan")
 
 # --- 1️⃣ Token Validation ---
 token = st.session_state.get("token", None)
@@ -91,7 +91,7 @@ if st.button("🔍 Fetch Data from Coretax"):
     status_placeholder = st.empty()
     status_placeholder.info("Fetching data from Coretax API...")
             
-    url = BASE_URL + "/einvoiceportal/api/inputinvoice/list"
+    url = BASE_URL + "/einvoiceportal/api/inputreturn/list"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
@@ -119,7 +119,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             },
             {
                 "PropertyName": "TaxInvoiceStatus",
-                "Value": "CREDITED",
+                "Value": "APPROVED",
                 "MatchMode": "equals",
                 "CaseSensitive": True,
                 "AsString": False
@@ -159,7 +159,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             if i % 10 == 0:
                 keepalive(token)
                 
-            url = BASE_URL + "/einvoiceportal/api/inputinvoice/view"
+            url = BASE_URL + "/einvoiceportal/api/inputreturn/view"
             headers = {
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json"
@@ -198,27 +198,26 @@ if st.button("🔍 Fetch Data from Coretax"):
             payloads = details
             
             all_rows = []
-            
             column_map = {
-                "FormDataObj_TransactionDocumentData_InvoiceDate": "tanggal",
-                "FormDataObj_TransactionDocumentData_TaxInvoiceNumber": "nota",
+                "FormDataObj_TransactionDocumentData_ReturnDate": "tanggal",
+                "FormDataObj_TransactionDocumentData_ReturnDocumentNumber": "nota",
                 "SellerTIN": "relasi",
                 "kode": "kode",
                 "qtybox": "qtybox",
                 "qtylsn": "qtylsn",
-                "FormDataObj_TransactionDetailsData_Quantity": "qtypcs",
+                "FormDataObj_TransactionDetailsData_ReturnQuantity": "qtypcs",
                 "hrgbox": "hrgbox",
                 "hrglsn": "hrglsn",
                 "FormDataObj_TransactionDetailsData_UnitPrice": "hrgpcs",
-                "FormDataObj_TransactionDetailsData_Discount": "discount",
+                "FormDataObj_TransactionDetailsData_ReturnDiscount": "discount",
                 "FormDataObj_TransactionDetailsData_VATRate": "ppn",
-                "FormDataObj_TransactionDocumentData_Period": "sptmasa",
-                "FormDataObj_TransactionDetailsData_TaxBase": "jmldpp",
-                "FormDataObj_TransactionDetailsData_VAT": "jmlppn",
-                "SellerName": "nmsup",
+                "FormDataObj_TransactionDocumentData_TaxInvoicePeriod": "sptmasa",
+                "FormDataObj_TransactionDetailsData_ReturnTaxBase": "jmldpp",
+                "FormDataObj_TransactionDetailsData_ReturnVAT": "jmlppn",
+                "SellerTaxpayerName": "nmsup",
                 "FormDataObj_TransactionDetailsData_Name": "nmbrg",
                 "divisi": "divisi",
-                "TaxInvoiceNumber": "nofp"
+                "ReturnNumber": "nofp"
             }
 
             month_end_map = {
@@ -249,23 +248,23 @@ if st.button("🔍 Fetch Data from Coretax"):
                         # "FormDataObj_TransactionDetailsData_Type": d.get("Type", ""),
                         "FormDataObj_TransactionDetailsData_Name": d.get("Name", ""),
                         # "FormDataObj_TransactionDetailsData_Code": d.get("Code", ""),
-                        "FormDataObj_TransactionDetailsData_Quantity": d.get("Quantity", 0),
+                        "FormDataObj_TransactionDetailsData_ReturnQuantity": d.get("ReturnQuantity", 0),
                         # "FormDataObj_TransactionDetailsData_Unit": d.get("Unit", ""),
                         "FormDataObj_TransactionDetailsData_UnitPrice": d.get("UnitPrice", 0),
-                        "FormDataObj_TransactionDetailsData_Discount": d.get("Discount", 0),
+                        "FormDataObj_TransactionDetailsData_ReturnDiscount": d.get("ReturnDiscount", 0),
                         "FormDataObj_TransactionDetailsData_VATRate": d.get("VATRate", 0),
-                        "FormDataObj_TransactionDetailsData_TaxBase": d.get("TaxBase", 0),
-                        "FormDataObj_TransactionDetailsData_VAT": d.get("VAT", 0),
+                        "FormDataObj_TransactionDetailsData_ReturnTaxBase": d.get("ReturnTaxBase", 0),
+                        "FormDataObj_TransactionDetailsData_ReturnVAT": d.get("ReturnVAT", 0),
 
                         # include parent-level info from FormDataObj_TransactionDocumentData
-                        "FormDataObj_TransactionDocumentData_InvoiceDate": payload.get("FormDataObj", {}).get("TransactionDocumentData", {}).get("InvoiceDate", ""),
-                        "FormDataObj_TransactionDocumentData_TaxInvoiceNumber": payload.get("FormDataObj", {}).get("TransactionDocumentData", {}).get("TaxInvoiceNumber", ""),
-                        "FormDataObj_TransactionDocumentData_Period": sptmasa_value,
+                        "FormDataObj_TransactionDocumentData_ReturnDate": payload.get("FormDataObj", {}).get("TransactionDocumentData", {}).get("ReturnDate", ""),
+                        "FormDataObj_TransactionDocumentData_ReturnDocumentNumber": payload.get("FormDataObj", {}).get("TransactionDocumentData", {}).get("ReturnDocumentNumber", ""),
+                        "FormDataObj_TransactionDocumentData_TaxInvoicePeriod": sptmasa_value,
 
                         # add seller info
                         "SellerTIN": payload.get("SellerTIN", ""),
-                        "SellerName": payload.get("SellerName", ""),
-                        "TaxInvoiceNumber": payload.get("TaxInvoiceNumber", ""),
+                        "SellerTaxpayerName": payload.get("SellerTaxpayerName", ""),
+                        "ReturnNumber": payload.get("ReturnNumber", ""),
                     }
                     all_rows.append(row)
 
@@ -280,6 +279,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             # Reorder safely
             df_all = df_all[list(column_map.values())]
             df_all["tanggal"] = df_all["tanggal"].apply(format_date)
+            df_all = df_all.loc[df_all["qtypcs"] > 0]
 
             # st.write(df_all.columns.tolist())
             status_placeholder.empty()
@@ -291,7 +291,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             st.download_button(
                 "📊 Download Details Excel",
                 data=excel_buffer.getvalue(),
-                file_name="coretax_input_invoice_details.xlsx",
+                file_name="coretax_input_return_details.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
         except Exception as e:
