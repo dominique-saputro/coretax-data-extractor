@@ -104,7 +104,7 @@ if st.button("🔍 Fetch Data from Coretax"):
         "SortOrder": 1,
         "Filters": [
             {
-                "PropertyName": "TaxInvoicePeriod",
+                "PropertyName": "PeriodCredit",
                 "Value": period,
                 "MatchMode": "contains",
                 "CaseSensitive": True,
