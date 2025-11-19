@@ -165,7 +165,7 @@ if st.button("🔍 Fetch Data from Coretax"):
         for i, rid in enumerate(record_ids):
             for api_url in api_urls:
                 # Ping KeepAlive every 10 requests
-                if i % 10 == 0:
+                if i % 50 == 0:
                     keepalive(token)
                     
                 url = BASE_URL + api_url

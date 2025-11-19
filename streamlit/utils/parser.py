@@ -91,11 +91,11 @@ def parse_lampiran(spt_choice,details):
                     df_l1a = pd.DataFrame()
                 else:
                     records = raw_data.get("Data", []) if isinstance(raw_data, dict) else []
-                    df_l1a = pd.DataFrame(records)[["TIN", "Name", "WithholdingSlipsNumber", "WithholdingSlipsDate", "GrossIncome", "TaxRate", "IncomeTax","TaxCertificate", "CountryCode","PlaceOfBusinessID", "RevenueCode", "Status"]]
+                    df_l1a = pd.DataFrame(records)[["TIN", "Name", "WithholdingSlipsNumber", "WithholdingSlipsDate", "TaxObjectCode","GrossIncome", "TaxRate", "IncomeTax","TaxCertificate", "CountryCode","PlaceOfBusinessID", "RevenueCode", "Status"]]
                     df_l1a = clean_taxcertificate(df_l1a)
             except Exception as e:
                 print("Error parsing df_l1a:", e)
-                df_l1a = pd.DataFrame(columns=["TIN", "Name", "WithholdingSlipsNumber", "WithholdingSlipsDate", "GrossIncome", "TaxRate", "IncomeTax","TaxCertificate", "CountryCode","PlaceOfBusinessID", "RevenueCode", "Status"])
+                df_l1a = pd.DataFrame(columns=["TIN", "Name", "WithholdingSlipsNumber", "WithholdingSlipsDate", "TaxObjectCode","GrossIncome", "TaxRate", "IncomeTax","TaxCertificate", "CountryCode","PlaceOfBusinessID", "RevenueCode", "Status"])
 
             # --- L-III ---
             try:
@@ -104,11 +104,11 @@ def parse_lampiran(spt_choice,details):
                     df_l3 = pd.DataFrame()
                 else:
                     records = raw_data.get("Data", []) if isinstance(raw_data, dict) else []
-                    df_l3 = pd.DataFrame(records)[["TIN", "Name", "TaxArticle", "WithholdingNumber", "WithholdingDate", "TaxObjectCode", "TaxObject", "GrossIncome", "IncomeTax","PlaceOfBusinessID", "RevenueCode", "Status"]]
+                    df_l3 = pd.DataFrame(records)[["TIN", "Name", "TaxArticle", "WithholdingNumber", "WithholdingDate", "TaxObjectCode", "TaxObject", "GrossIncome", "IncomeTax","TaxCertificate","PlaceOfBusinessID", "RevenueCode", "Status"]]
                     df_l3 = clean_taxcertificate(df_l3)
             except Exception as e:
                 print("Error parsing df_l3:", e)
-                df_l3 = pd.DataFrame(columns=["TIN", "Name", "TaxArticle", "WithholdingNumber", "WithholdingDate", "TaxObjectCode", "TaxObject", "GrossIncome", "IncomeTax","PlaceOfBusinessID", "RevenueCode", "Status"])
+                df_l3 = pd.DataFrame(columns=["TIN", "Name", "TaxArticle", "WithholdingNumber", "WithholdingDate", "TaxObjectCode", "TaxObject", "GrossIncome", "IncomeTax","TaxCertificate","PlaceOfBusinessID", "RevenueCode", "Status"])
             
             dfs = {
                 "L-IA":df_l1a,
