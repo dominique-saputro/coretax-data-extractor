@@ -283,7 +283,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             df_all = df_all[list(column_map.values())]
             df_all["tanggal"] = df_all["tanggal"].apply(format_date)
             df_all = df_all.loc[df_all["qtypcs"] > 0]
-            df["jmldpp"] = (df["hrgpcs"] * df["qtypcs"]) - df["discount"]
+            df_all["jmldpp"] = (df_all["hrgpcs"] * df_all["qtypcs"]) - df_all["discount"]
 
             # st.write(df_all.columns.tolist())
             status_placeholder.empty()
