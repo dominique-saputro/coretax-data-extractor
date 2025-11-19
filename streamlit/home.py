@@ -62,29 +62,31 @@ if token:
             tin = data.get("user_name")
             
             # ------------ With Safety guard
-            # userid = "00148151466140001111"
-            # if tin == userid: 
-            #     st.session_state["token"] = token
-            #     st.session_state["taxpayer_id"] = taxpayer_id
-            #     st.session_state["taxpayer_name"] = taxpayer_name
-            #     st.session_state["validated"] = True
+            userid = [
+                "0011098050651000",
+                ]
+            if tin in userid: 
+                st.session_state["token"] = token
+                st.session_state["taxpayer_id"] = taxpayer_id
+                st.session_state["taxpayer_name"] = taxpayer_name
+                st.session_state["validated"] = True
 
-            #     status_placeholder.empty()
-            #     st.success(f"✅ Token Valid — Welcome {taxpayer_name or ''}")
-            #     st.sidebar.success("Select a data extraction page above.")
-            # else:
-            #     status_placeholder.empty()
-            #     st.error(f"❌ Invalid — User {taxpayer_name or ''} not registered")
+                status_placeholder.empty()
+                st.success(f"✅ Token Valid — Welcome {taxpayer_name or ''}")
+                st.sidebar.success("Select a data extraction page above.")
+            else:
+                status_placeholder.empty()
+                st.error(f"❌ Invalid — User {taxpayer_name or ''} not registered")
                 
             # ------------ Without Safety guard
-            st.session_state["token"] = token
-            st.session_state["taxpayer_id"] = taxpayer_id
-            st.session_state["taxpayer_name"] = taxpayer_name
-            st.session_state["validated"] = True
+            # st.session_state["token"] = token
+            # st.session_state["taxpayer_id"] = taxpayer_id
+            # st.session_state["taxpayer_name"] = taxpayer_name
+            # st.session_state["validated"] = True
 
-            status_placeholder.empty()
-            st.success(f"✅ Token Valid — Welcome {taxpayer_name or ''}")
-            st.sidebar.success("Select a data extraction page above.")
+            # status_placeholder.empty()
+            # st.success(f"✅ Token Valid — Welcome {taxpayer_name or ''}")
+            # st.sidebar.success("Select a data extraction page above.")
                 
         except requests.exceptions.RequestException as e:
             status_placeholder.empty()
