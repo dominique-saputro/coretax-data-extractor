@@ -38,6 +38,8 @@ st.title("📄 Lampiran SPT")
 token = st.session_state.get("token", None)
 taxpayer_id = st.session_state.get("taxpayer_id", None)
 taxpayer_name = st.session_state.get("taxpayer_name", None)
+rep_tin = st.session_state.get("rep_tin", None)
+
 st.subheader(f"Authorization - {taxpayer_name}")
 if token and taxpayer_id:
     keepalive(token)
@@ -49,11 +51,17 @@ else:
     
 # --- 2️⃣ Parameters ---
 st.subheader("Query Parameters")
-spt_options = {
-    "PPN":"VAT_VAT",
-    "PPh21":"ICT_WIT",
-    "Unifikasi":"ICT_WT",
-}
+if taxpayer_id == '0ed0b01b-02f5-f7f4-4f3c-8daf06b8cfac' and rep_tin != '3515186102890004':
+    spt_options = {
+        "PPN":"VAT_VAT",
+        "Unifikasi":"ICT_WT",
+    }
+else:
+    spt_options = {
+        "PPN":"VAT_VAT",
+        "PPh21":"ICT_WIT",
+        "Unifikasi":"ICT_WT",
+    }
 spt_choice = st.selectbox(
     "Select SPT",
     options=list(spt_options.keys()),

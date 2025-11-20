@@ -60,6 +60,7 @@ if token:
             taxpayer_id = data.get("taxpayer_id")
             taxpayer_name = data.get("full_name")
             tin = data.get("user_name")
+            rep_tin = data.get("RepresentativeTin")
             
             # ------------ With Safety guard
             userid = [
@@ -96,6 +97,7 @@ if token:
                 st.session_state["token"] = token
                 st.session_state["taxpayer_id"] = taxpayer_id
                 st.session_state["taxpayer_name"] = taxpayer_name
+                st.session_state["rep_tin"] = rep_tin
                 st.session_state["validated"] = True
 
                 status_placeholder.empty()
