@@ -51,15 +51,19 @@ else:
     
 # --- 2️⃣ Parameters ---
 st.subheader("Query Parameters")
-if taxpayer_id == '0ed0b01b-02f5-f7f4-4f3c-8daf06b8cfac' and rep_tin != '3515186102890004':
-    spt_options = {
+# if (taxpayer_id == '0ed0b01b-02f5-f7f4-4f3c-8daf06b8cfac' and rep_tin != '3515186102890004') or (taxpayer_id == '0ed0b01b-02f5-f7f4-4f3c-8daf06b8cfac' and rep_tin != '3515186102890004'):
+#     spt_options = {
+#         "PPN":"VAT_VAT",
+#         "Unifikasi":"ICT_WT",
+#     }
+# else:
+#     spt_options = {
+#         "PPN":"VAT_VAT",
+#         "PPh21":"ICT_WIT",
+#         "Unifikasi":"ICT_WT",
+#     }
+spt_options = {
         "PPN":"VAT_VAT",
-        "Unifikasi":"ICT_WT",
-    }
-else:
-    spt_options = {
-        "PPN":"VAT_VAT",
-        "PPh21":"ICT_WIT",
         "Unifikasi":"ICT_WT",
     }
 spt_choice = st.selectbox(
