@@ -3,6 +3,7 @@ import requests
 import base64
 import zlib
 import json
+from ast import literal_eval
 
 st.set_page_config(
     page_title="Coretax Data Extractor",
@@ -61,6 +62,9 @@ if token:
             taxpayer_name = data.get("full_name")
             tin = data.get("user_name")
             rep_tin = data.get("RepresentativeTin")
+            roles = data.get("roles")
+            roles = literal_eval(roles)
+            roles = set(map(int, roles))
             
             # ------------ With Safety guard
             userid = [
@@ -98,6 +102,12 @@ if token:
                 st.session_state["taxpayer_id"] = taxpayer_id
                 st.session_state["taxpayer_name"] = taxpayer_name
                 st.session_state["rep_tin"] = rep_tin
+                st.session_state["roles"] = roles
+  
+                st.session_state["allow_ppn"] = 32 in roles
+                st.session_state["allow_unifikasi"] = 38 in roles
+                st.session_state["allow_pph21"] = 42 in roles
+
                 st.session_state["validated"] = True
 
                 status_placeholder.empty()
@@ -106,17 +116,6 @@ if token:
             else:
                 status_placeholder.empty()
                 st.error(f"❌ Invalid — User {taxpayer_name or ''} not registered")
-                
-            # ------------ Without Safety guard
-            # st.session_state["token"] = token
-            # st.session_state["taxpayer_id"] = taxpayer_id
-            # st.session_state["taxpayer_name"] = taxpayer_name
-            # st.session_state["validated"] = True
-
-            # status_placeholder.empty()
-            # st.success(f"✅ Token Valid — Welcome {taxpayer_name or ''}")
-            # st.sidebar.success("Select a data extraction page above.")
-                
         except requests.exceptions.RequestException as e:
             status_placeholder.empty()
             st.error(f"Request failed: {e}")

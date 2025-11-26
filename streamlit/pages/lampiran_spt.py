@@ -39,6 +39,7 @@ token = st.session_state.get("token", None)
 taxpayer_id = st.session_state.get("taxpayer_id", None)
 taxpayer_name = st.session_state.get("taxpayer_name", None)
 rep_tin = st.session_state.get("rep_tin", None)
+roles = st.session_state.get("roles", None)
 
 st.subheader(f"Authorization - {taxpayer_name}")
 if token and taxpayer_id:
@@ -51,26 +52,37 @@ else:
     
 # --- 2️⃣ Parameters ---
 st.subheader("Query Parameters")
-# if (taxpayer_id == '0ed0b01b-02f5-f7f4-4f3c-8daf06b8cfac' and rep_tin != '3515186102890004') or (taxpayer_id == '0ed0b01b-02f5-f7f4-4f3c-8daf06b8cfac' and rep_tin != '3515186102890004'):
-#     spt_options = {
-#         "PPN":"VAT_VAT",
-#         "Unifikasi":"ICT_WT",
-#     }
-# else:
-#     spt_options = {
-#         "PPN":"VAT_VAT",
-#         "PPh21":"ICT_WIT",
-#         "Unifikasi":"ICT_WT",
-#     }
-spt_options = {
-        "PPN":"VAT_VAT",
-        "Unifikasi":"ICT_WT",
+roles = set(roles)
+spt_options = {}
+ROLE_SPT_MAPPING = {
+    "PPN": {
+        "role": 32,
+        "code": "VAT_VAT"
+    },
+    "Unifikasi": {
+        "role": 38,
+        "code": "ICT_WT"
+    },
+    "PPh21": {
+        "role": 42,
+        "code": "ICT_WIT"
     }
+}
+
+for name, info in ROLE_SPT_MAPPING.items():
+    st.session_state[f"allow_{name.lower()}"] = info["role"] in roles
+    if info["role"] in roles:
+        spt_options[name] = info["code"]
 spt_choice = st.selectbox(
     "Select SPT",
     options=list(spt_options.keys()),
+    index=0 if spt_options else None
 )
-spt_type = spt_options[spt_choice]
+if spt_choice is not None:
+    spt_type = spt_options[spt_choice]
+else:
+    st.warning("No SPT available for your role.")
+    st.stop()
 month_mapping = {
     "January": "0101",
     "February": "0202",
