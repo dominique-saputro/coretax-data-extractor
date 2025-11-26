@@ -3,8 +3,11 @@ import requests
 import pandas as pd
 import io
 import time
+import datetime
+
 
 BASE_URL = "https://coretaxdjp.pajak.go.id"
+current_month = datetime.datetime.now().strftime("%B")
 
 def keepalive(token):
     """Ping the Coretax KeepAlive endpoint to maintain session"""
@@ -84,8 +87,9 @@ months = st.multiselect(
 )
 period = [month_mapping[m] for m in months]
 year = st.number_input("TaxInvoiceYear", value=2025)
-rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=100, step=50)
-
+rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=100, step=100)
+taxpayer_status = st.checkbox("Status PKP", value=True)
+    
 # --- 3️⃣ Fetch Data ---
 if st.button("🔍 Fetch Data from Coretax"):
     status_placeholder = st.empty()
@@ -95,39 +99,73 @@ if st.button("🔍 Fetch Data from Coretax"):
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
-    } 
-    payload = {
-        "BuyerTaxpayerAggregateIdentifier": f"{taxpayer_id}",
-        "First": 0,
-        "Rows": rows,
-        "SortField": "",
-        "SortOrder": 1,
-        "Filters": [
-            {
-                "PropertyName": "PeriodCredit",
-                "Value": period,
-                "MatchMode": "contains",
-                "CaseSensitive": True,
-                "AsString": False
-            },
-            {
-                "PropertyName": "TaxInvoiceYear",
-                "Value": 2025,
-                "MatchMode": "equals",
-                "CaseSensitive": True,
-                "AsString": False
-            },
-            {
-                "PropertyName": "TaxInvoiceStatus",
-                "Value": "CREDITED",
-                "MatchMode": "equals",
-                "CaseSensitive": True,
-                "AsString": False
-            }
-        ],
-        "LanguageId": "id-ID",
-        "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
     }
+    if taxpayer_status: 
+        payload = {
+            "BuyerTaxpayerAggregateIdentifier": f"{taxpayer_id}",
+            "First": 0,
+            "Rows": rows,
+            "SortField": "",
+            "SortOrder": 1,
+            "Filters": [
+                {
+                    "PropertyName": "PeriodCredit",
+                    "Value": period,
+                    "MatchMode": "contains",
+                    "CaseSensitive": True,
+                    "AsString": False
+                },
+                {
+                    "PropertyName": "TaxInvoiceYear",
+                    "Value": 2025,
+                    "MatchMode": "equals",
+                    "CaseSensitive": True,
+                    "AsString": False
+                },
+                {
+                    "PropertyName": "TaxInvoiceStatus",
+                    "Value": "CREDITED",
+                    "MatchMode": "equals",
+                    "CaseSensitive": True,
+                    "AsString": False
+                }
+            ],
+            "LanguageId": "id-ID",
+            "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
+        }
+    else:
+        payload = {
+            "BuyerTaxpayerAggregateIdentifier": f"{taxpayer_id}",
+            "First": 0,
+            "Rows": rows,
+            "SortField": "",
+            "SortOrder": 1,
+            "Filters": [
+                {
+                    "PropertyName": "TaxInvoicePeriod",
+                    "Value": period,
+                    "MatchMode": "contains",
+                    "CaseSensitive": True,
+                    "AsString": False
+                },
+                {
+                    "PropertyName": "TaxInvoiceYear",
+                    "Value": 2025,
+                    "MatchMode": "equals",
+                    "CaseSensitive": True,
+                    "AsString": False
+                },
+                {
+                    "PropertyName": "TaxInvoiceStatus",
+                    "Value": "APPROVED",
+                    "MatchMode": "equals",
+                    "CaseSensitive": True,
+                    "AsString": False
+                }
+            ],
+            "LanguageId": "id-ID",
+            "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
+        }
     try:
         # st.write(payload)
         response = requests.post(url, headers=headers, json=payload)
