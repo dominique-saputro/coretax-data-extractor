@@ -73,6 +73,12 @@ for name, info in ROLE_SPT_MAPPING.items():
     st.session_state[f"allow_{name.lower()}"] = info["role"] in roles
     if info["role"] in roles:
         spt_options[name] = info["code"]
+        
+# spt_options = {
+#     "PPN": "VAT_VAT",
+#     "Unifikasi": "ICT_WT",
+#     "PPh21":"ICT_WIT"
+# }
 spt_choice = st.selectbox(
     "Select SPT",
     options=list(spt_options.keys()),
