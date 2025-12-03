@@ -2,34 +2,10 @@ import streamlit as st
 import requests
 import pandas as pd
 import io
-import time
+from utils import base
 from utils import parse_lampiran
 
-BASE_URL = "https://coretaxdjp.pajak.go.id"
-
-def keepalive(token):
-    """Ping the Coretax KeepAlive endpoint to maintain session"""
-    url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAlive"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    try:
-        time.sleep(0.5)
-        resp = requests.post(url, headers=headers, timeout=10)
-        if resp.status_code == 200:
-            st.write("💓 Session refreshed (KeepAlive successful).")
-        else:
-            st.warning(f"KeepAlive failed: {resp.status_code}")
-    except requests.exceptions.RequestException as e:
-        st.warning(f"⚠️ KeepAlive error: {e}")
-
-def format_date(date_str):
-    """Convert ISO date string (2025-09-17T00:00:00) to YYYY/MM/DD format."""
-    try:
-        return pd.to_datetime(date_str).strftime("%Y/%m/%d")
-    except Exception:
-        return ""
+BASE_URL = base.BASE_URL
 
 st.set_page_config(page_title="Lampiran SPT", layout="centered", page_icon="📄")
 st.title("📄 Lampiran SPT")
@@ -41,18 +17,24 @@ taxpayer_name = st.session_state.get("taxpayer_name", None)
 rep_tin = st.session_state.get("rep_tin", None)
 roles = st.session_state.get("roles", None)
 
-st.subheader(f"Authorization - {taxpayer_name}")
-if token and taxpayer_id:
-    keepalive(token)
-else:
-    if not token:
-        st.warning("Token invalid.")
-    if not taxpayer_id:
-        st.warning("Taxpayer Id not found.")
+base.auth_header(token,taxpayer_id,taxpayer_name)
     
 # --- 2️⃣ Parameters ---
-st.subheader("Query Parameters")
 roles = set(roles)
+month_mapping = {
+    "January": "0101",
+    "February": "0202",
+    "March": "0303",
+    "April": "0404",
+    "May": "0505",
+    "June": "0606",
+    "July": "0707",
+    "August": "0808",
+    "September": "0909",
+    "October": "1010",
+    "November": "1111",
+    "December": "1212",
+}
 spt_options = {}
 ROLE_SPT_MAPPING = {
     "PPN": {
@@ -79,6 +61,9 @@ for name, info in ROLE_SPT_MAPPING.items():
 #     "Unifikasi": "ICT_WT",
 #     "PPh21":"ICT_WIT"
 # }
+
+period,year,rows = base.parameter_body(month_mapping)
+period_num = int(period[:2]) 
 spt_choice = st.selectbox(
     "Select SPT",
     options=list(spt_options.keys()),
@@ -89,28 +74,6 @@ if spt_choice is not None:
 else:
     st.warning("No SPT available for your role.")
     st.stop()
-month_mapping = {
-    "January": "0101",
-    "February": "0202",
-    "March": "0303",
-    "April": "0404",
-    "May": "0505",
-    "June": "0606",
-    "July": "0707",
-    "August": "0808",
-    "September": "0909",
-    "October": "1010",
-    "November": "1111",
-    "December": "1212",
-}
-months = st.selectbox(
-    "Select month(s) for TaxInvoicePeriod",
-    options=list(month_mapping.keys()),
-)
-period = month_mapping[months]
-period_num = int(period[:2]) 
-year = st.number_input("TaxInvoiceYear", value=2025)
-rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=100, step=50)
 
 # --- 3️⃣ Fetch Data ---
 if st.button("🔍 Fetch Data from Coretax"):
@@ -196,7 +159,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             for api_url in api_urls:
                 # Ping KeepAlive every 10 requests
                 if i % 50 == 0:
-                    keepalive(token)
+                    base.keepalive(token)
                     
                 url = BASE_URL + api_url
                 headers = {

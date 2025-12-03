@@ -2,48 +2,9 @@ import streamlit as st
 import requests
 import pandas as pd
 import io
-import time
+from utils import base
 
-BASE_URL = "https://coretaxdjp.pajak.go.id"
-
-def keepalive(token):
-    """Ping the Coretax KeepAlive endpoint to maintain session"""
-    url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAlive"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    try:
-        time.sleep(0.5)
-        resp = requests.post(url, headers=headers, timeout=10)
-        if resp.status_code == 200:
-            st.write("💓 Session refreshed (KeepAlive successful).")
-        else:
-            st.warning(f"KeepAlive failed: {resp.status_code}")
-    except requests.exceptions.RequestException as e:
-        st.warning(f"⚠️ KeepAlive error: {e}")
-
-def format_date(date_str):
-    """Convert ISO date string (2025-09-17T00:00:00) to YYYY/MM/DD format."""
-    try:
-        return pd.to_datetime(date_str).strftime("%Y/%m/%d")
-    except Exception:
-        return ""
-
-def get_period_end_date(period_code, year):
-    """
-    Map Coretax TD.007XX period codes to the end-of-month date.
-    Example: TD.00709 + 2025 → 30/09/2025
-    """
-    if not period_code:
-        return ""
-    try:
-        base_date = month_end_map.get(period_code[:8], "")  # first 8 chars e.g. TD.00709
-        if base_date and year:
-            return f"{year}{base_date}"
-        return base_date
-    except Exception:
-        return ""
+BASE_URL = base.BASE_URL
 
 st.set_page_config(page_title="Retur Keluaran", layout="centered", page_icon="⚖️")
 st.title("⚖️ Retur Keluaran")
@@ -52,39 +13,10 @@ st.title("⚖️ Retur Keluaran")
 token = st.session_state.get("token", None)
 taxpayer_id = st.session_state.get("taxpayer_id", None)
 taxpayer_name = st.session_state.get("taxpayer_name", None)
-st.subheader(f"Authorization - {taxpayer_name}")
-if token and taxpayer_id:
-    keepalive(token)
-else:
-    if not token:
-        st.warning("Token invalid.")
-    if not taxpayer_id:
-        st.warning("Taxpayer Id not found.")
+base.auth_header(token,taxpayer_id,taxpayer_name)
     
 # --- 2️⃣ Parameters ---
-st.subheader("Query Parameters")
-month_mapping = {
-    "January": "TD.00701",
-    "February": "TD.00702",
-    "March": "TD.00703",
-    "April": "TD.00704",
-    "May": "TD.00705",
-    "June": "TD.00706",
-    "July": "TD.00707",
-    "August": "TD.00708",
-    "September": "TD.00709",
-    "October": "TD.00710",
-    "November": "TD.00711",
-    "December": "TD.00712",
-}
-months = st.multiselect(
-    "Select month(s) for TaxInvoicePeriod",
-    options=list(month_mapping.keys()),
-    default=["September"]
-)
-period = [month_mapping[m] for m in months]
-year = st.number_input("TaxInvoiceYear", value=2025)
-rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=100, step=50)
+period,year,rows = base.parameter_body()
 
 # --- 3️⃣ Fetch Data ---
 if st.button("🔍 Fetch Data from Coretax"):
@@ -138,15 +70,11 @@ if st.button("🔍 Fetch Data from Coretax"):
         
         # extract RecordIds from DataFrame
         if len(records) == 0:
-            reverse_month_mapping = {v: k for k, v in month_mapping.items()}
-            if isinstance(period, list):
-                month_names = [reverse_month_mapping[p] for p in period]
-                st.warning(f"No records found for {', '.join(month_names)}")
-            else:
-                month_name = reverse_month_mapping[period]
-                st.warning(f"No records found for {month_name}")
+            month_name  = base.reverse_month_mapping(period)
             status_placeholder.empty()
+            st.warning(f"No records found for {month_name} {year}")
             st.stop()
+            
         record_ids = df["RecordId"].dropna().tolist()
         st.success(f"✅ Success! Retrieved {len(record_ids)} records.")
         status_placeholder.empty()
@@ -157,7 +85,7 @@ if st.button("🔍 Fetch Data from Coretax"):
         for i, rid in enumerate(record_ids):
             # Ping KeepAlive every 10 requests
             if i % 50 == 0:
-                keepalive(token)
+                base.keepalive(token)
                 
             url = BASE_URL + "/einvoiceportal/api/outputreturn/view"
             headers = {
@@ -171,7 +99,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             }
 
             try:
-                resp = requests.post(url, headers=headers, json=payload)
+                resp = requests.post(url, headers=headers, json=payload, timeout=(10, 180))
                 resp.raise_for_status()
                 detail_data = resp.json()
                 
@@ -244,7 +172,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                     period_code = payload.get("FormDataObj", {}).get("TransactionDocumentData", {}).get("TaxInvoicePeriod", "")
                     year = payload.get("FormDataObj", {}).get("TransactionDocumentData", {}).get("TaxInvoiceYear", "")
 
-                    sptmasa_value = get_period_end_date(period_code, year)
+                    sptmasa_value = base.get_period_end_date(period_code, year)
 
                     row = {
                         # pull in detail-level fields
@@ -281,7 +209,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                     
             # Reorder safely
             df_all = df_all[list(column_map.values())]
-            df_all["tanggal"] = df_all["tanggal"].apply(format_date)
+            df_all["tanggal"] = df_all["tanggal"].apply(base.format_date)
             df_all = df_all.loc[df_all["qtypcs"] > 0]
             df_all["jmldpp"] = (df_all["hrgpcs"] * df_all["qtypcs"]) - df_all["discount"]
 
