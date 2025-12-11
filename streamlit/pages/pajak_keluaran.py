@@ -82,6 +82,7 @@ if st.button("🔍 Fetch Data from Coretax"):
         # get details for all headers
         status_placeholder.info("Fetching details from Coretax API...")
         details = []
+        fails = []
         for i, rid in enumerate(record_ids):
             # Ping KeepAlive every 10 requests
             if i % 50 == 0:
@@ -110,8 +111,47 @@ if st.button("🔍 Fetch Data from Coretax"):
 
             except requests.exceptions.RequestException as e:
                 status_placeholder.empty()
-                st.warning(f"⚠️ Failed to fetch details for RecordId {rid}: {e}")
-                
+                fails.append(rid)
+                st.warning(f"⚠️ Failed to fetch details for RecordId {rid}: {e}. Will retry later. Please Hold.")
+        
+        MAX_RETRIES = 3
+        retry_count = 0
+
+        while len(fails) > 0 and retry_count < MAX_RETRIES:
+            retry_count += 1
+            st.info(f"Retrying {len(fails)} failed records... Attempt {retry_count}/{MAX_RETRIES}")
+
+            new_fails = []
+            
+            for i, rid in enumerate(fails):
+                # keepalive every 50 requests
+                if i % 50 == 0:
+                    base.keepalive(token)
+
+                url = BASE_URL + "/einvoiceportal/api/outputinvoice/view"
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json"
+                }
+                payload = {
+                    "RecordIdentifier": f"{rid}",
+                    "EinvoiceVATStatus": "VAT_VAT",
+                    "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
+                }
+
+                try:
+                    resp = requests.post(url, headers=headers, json=payload, timeout=(10, 180))
+                    resp.raise_for_status()
+                    detail_data = resp.json()
+
+                    details.append(detail_data.get("Payload", detail_data))
+
+                except requests.exceptions.RequestException as e:
+                    new_fails.append(rid)  # only add fails ONCE
+                    st.warning(f"⚠️ Retry failed for RecordId {rid}: {e}")
+
+            fails = new_fails  # update fail list for next loop
+
     except requests.exceptions.RequestException as e:
         status_placeholder.empty()
         st.error(f"Request failed: {e}")
