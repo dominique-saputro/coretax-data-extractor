@@ -118,6 +118,7 @@ if st.button("🔍 Fetch Data from Coretax"):
         with st.status("Fetching details...", expanded=True) as status:
             details = []
             fails = []
+            new_fails = []
             
             url = BASE_URL + "/einvoiceportal/api/inputinvoice/view"
             headers = {
@@ -134,7 +135,6 @@ if st.button("🔍 Fetch Data from Coretax"):
                 retry_count += 1
                 st.info(f"Retrying {len(fails)} failed records... Attempt {retry_count}/{MAX_RETRIES}")
 
-                new_fails = []
                 details,new_fails = base.fetch_details(status,details,new_fails,fails,token,taxpayer_id,url,headers)
                 
             status.update(label="Done!", state="complete")
