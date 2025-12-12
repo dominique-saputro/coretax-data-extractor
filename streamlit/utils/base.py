@@ -124,7 +124,6 @@ def fetch_details(status,details,fails,record_ids,token,taxpayer_id,url,headers)
         status.update(label=f"Fetching {i+1}/{len(record_ids)}...", state="running")
         
         if time.time() - last_heartbeat > HEARTBEAT_INTERVAL:
-            status.write(f"Still working… {i+1}/{len(record_ids)}")
             last_heartbeat = time.time()
         
         if i % 300 == 0:
