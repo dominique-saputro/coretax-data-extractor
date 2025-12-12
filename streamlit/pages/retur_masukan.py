@@ -80,77 +80,30 @@ if st.button("🔍 Fetch Data from Coretax"):
         st.success(f"✅ Success! Retrieved {len(record_ids)} records.")
         
         # get details for all headers
-        status_placeholder.info("Fetching details from Coretax API...")
-        details = []
-        fails = []
-        for i, rid in enumerate(record_ids):
-            # Ping KeepAlive every 10 requests
-            if i % 50 == 0:
-                base.keepalive(token)
-                
+        with st.status("Fetching details...", expanded=True) as status:
+            details = []
+            fails = []
+            
             url = BASE_URL + "/einvoiceportal/api/inputreturn/view"
             headers = {
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json"
             }
-            payload = {
-                "RecordIdentifier": f"{rid}",
-                "EinvoiceVATStatus": "",
-                "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
-            }
-
-            try:
-                resp = requests.post(url, headers=headers, json=payload, timeout=(10, 180))
-                resp.raise_for_status()
-                detail_data = resp.json()
-
-                # Optional: append only the "Payload" or "Data" portion
-                details.append(detail_data.get("Payload", detail_data))
-                # st.write(detail_data)
-
-            except requests.exceptions.RequestException as e:
-                status_placeholder.empty()
-                fails.append(rid)
-                st.warning(f"⚠️ Failed to fetch details for RecordId {rid}: {e}. Will retry later. Please Hold.")
-        
-        MAX_RETRIES = 3
-        retry_count = 0
-
-        while len(fails) > 0 and retry_count < MAX_RETRIES:
-            retry_count += 1
-            st.info(f"Retrying {len(fails)} failed records... Attempt {retry_count}/{MAX_RETRIES}")
-
-            new_fails = []
-            
-            for i, rid in enumerate(fails):
-                # keepalive every 50 requests
-                if i % 50 == 0:
-                    base.keepalive(token)
-
-                url = BASE_URL + "/einvoiceportal/api/inputreturn/view"
-                headers = {
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json"
-                }
-                payload = {
-                    "RecordIdentifier": f"{rid}",
-                    "EinvoiceVATStatus": "",
-                    "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
-                }
-
-                try:
-                    resp = requests.post(url, headers=headers, json=payload, timeout=(10, 180))
-                    resp.raise_for_status()
-                    detail_data = resp.json()
-
-                    details.append(detail_data.get("Payload", detail_data))
-
-                except requests.exceptions.RequestException as e:
-                    new_fails.append(rid)  # only add fails ONCE
-                    st.warning(f"⚠️ Retry failed for RecordId {rid}: {e}")
-
-            fails = new_fails  # update fail list for next loop
                 
+            details,fails = base.fetch_details(status,details,fails,record_ids,token,taxpayer_id,url,headers)
+            
+            MAX_RETRIES = base.MAX_RETRIES
+            retry_count = 0
+
+            while len(fails) > 0 and retry_count < MAX_RETRIES:
+                retry_count += 1
+                st.info(f"Retrying {len(fails)} failed records... Attempt {retry_count}/{MAX_RETRIES}")
+
+                new_fails = []
+                details,new_fails = base.fetch_details(status,details,new_fails,fails,token,taxpayer_id,url,headers)
+                
+            status.update(label="Done!", state="complete")
+        
     except requests.exceptions.RequestException as e:
         status_placeholder.empty()
         st.error(f"Request failed: {e}")

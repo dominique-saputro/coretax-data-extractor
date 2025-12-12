@@ -5,6 +5,7 @@ import time
 import datetime
 
 BASE_URL = "https://coretaxdjp.pajak.go.id"
+MAX_RETRIES = 3
 
 month_mapping = {
     "January": "TD.00701",
@@ -114,3 +115,33 @@ def parameter_body(month_mapping=month_mapping):
     year = st.number_input("TaxInvoiceYear", value=2025)
     rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=200, step=100)
     return period,year,rows
+
+def fetch_details(status,details,fails,record_ids,token,taxpayer_id,url,headers):
+    for i, rid in enumerate(record_ids):
+        status.update(label=f"Fetching {i+1}/{len(record_ids)}...", state="running")
+        if i % 500 == 0:
+            keepalive(token)
+            
+        if "output" in url:
+            payload = {
+                "RecordIdentifier": f"{rid}",
+                "EinvoiceVATStatus": "VAT_VAT",
+                "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
+            }
+        else:
+            payload = {
+                "RecordIdentifier": f"{rid}",
+                "EinvoiceVATStatus": "",
+                "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
+            }
+        
+        try:
+            resp = requests.post(url, headers=headers, json=payload, timeout=(10, 180))
+            resp.raise_for_status()
+            detail_data = resp.json()
+            details.append(detail_data.get("Payload", detail_data))
+        except requests.exceptions.RequestException as e:
+            fails.append(rid)
+            st.warning(f"⚠️ Failed to fetch details for RecordId[{i}]. Will try again later. Please Hold.")
+        
+    return details,fails
