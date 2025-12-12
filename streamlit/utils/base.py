@@ -117,9 +117,17 @@ def parameter_body(month_mapping=month_mapping):
     return period,year,rows
 
 def fetch_details(status,details,fails,record_ids,token,taxpayer_id,url,headers):
+    last_heartbeat = time.time()
+    HEARTBEAT_INTERVAL = 5
+    
     for i, rid in enumerate(record_ids):
         status.update(label=f"Fetching {i+1}/{len(record_ids)}...", state="running")
-        if i % 500 == 0:
+        
+        if time.time() - last_heartbeat > HEARTBEAT_INTERVAL:
+            status.write(f"Still working… {i+1}/{len(record_ids)}")
+            last_heartbeat = time.time()
+        
+        if i % 300 == 0:
             keepalive(token)
             
         if "output" in url:
@@ -143,5 +151,6 @@ def fetch_details(status,details,fails,record_ids,token,taxpayer_id,url,headers)
         except requests.exceptions.RequestException as e:
             fails.append(rid)
             st.warning(f"⚠️ Failed to fetch details for RecordId[{i}]. Will try again later. Please Hold.")
+            time.sleep(1)
         
     return details,fails
