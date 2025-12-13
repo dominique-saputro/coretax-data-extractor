@@ -179,11 +179,9 @@ def fetch_details(record_ids,token,taxpayer_id,url,headers):
         if st.session_state.cursor < total:
             st.warning(
                 f"Fetched {st.session_state.cursor}/{len(record_ids)} records. "
-                "Click Continue to resume."
+                "Click 🔍 Fetch Data from Coretax again."
             )
             
-            if st.button("▶️ Continue fetching"):
-                st.rerun()
         else:
             status.update(label="Done!", state="complete")
             st.success("🎉 All records fetched successfully!")
