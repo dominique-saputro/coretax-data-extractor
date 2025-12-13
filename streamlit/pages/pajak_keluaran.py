@@ -17,6 +17,20 @@ base.auth_header(token,taxpayer_id,taxpayer_name)
     
 # --- 2️⃣ Parameters ---
 period,year,rows = base.parameter_body()
+current_params = {
+    "period": tuple(period),  # list → tuple (hashable)
+    "year": year,
+    "rows": rows,
+}
+if "last_params" not in st.session_state:
+    st.session_state.last_params = current_params
+else:
+    if st.session_state.last_params != current_params:
+        for key in ["cursor", "details", "fails"]:
+            st.session_state.pop(key, None)
+
+        st.session_state.last_params = current_params
+        st.info("🔄 Parameters changed — progress reset.")
 
 # --- 3️⃣ Fetch Data ---
 if st.button("🔍 Fetch Data from Coretax"):
