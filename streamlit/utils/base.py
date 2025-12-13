@@ -177,15 +177,16 @@ def fetch_details(record_ids,token,taxpayer_id,url,headers):
             st.session_state.fails = retry_fails
 
         if st.session_state.cursor < total:
-            status.update(label="Chunk complete", state="complete")
-            st.warning("Partial fetch complete. Click Continue to proceed.")
-            st.stop()
+            st.warning(
+                f"Fetched {st.session_state.cursor}/{len(record_ids)} records. "
+                "Click Continue to resume."
+            )
             
             if st.button("▶️ Continue fetching"):
                 st.rerun()
-
-        status.update(label="Done!", state="complete")
-        st.success("🎉 All records fetched successfully!")
+        else:
+            status.update(label="Done!", state="complete")
+            st.success("🎉 All records fetched successfully!")
 
     return st.session_state.details
 
