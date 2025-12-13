@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE_URL = "https://coretaxdjp.pajak.go.id"
 MAX_RETRIES = 3
-CHUNK_SIZE = 200        
+CHUNK_SIZE = 500        
 MAX_WORKERS = 8        
 REQUEST_TIMEOUT = (10, 120)
 
@@ -179,7 +179,10 @@ def fetch_details(record_ids,token,taxpayer_id,url,headers):
         if st.session_state.cursor < total:
             status.update(label="Chunk complete", state="complete")
             st.warning("Partial fetch complete. Click Continue to proceed.")
-            # st.stop()
+            st.stop()
+            
+            if st.button("▶️ Continue fetching"):
+                st.rerun()
 
         status.update(label="Done!", state="complete")
         st.success("🎉 All records fetched successfully!")
