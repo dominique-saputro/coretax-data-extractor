@@ -179,7 +179,7 @@ def fetch_details(record_ids,token,taxpayer_id,url,headers):
         if st.session_state.cursor < total:
             status.update(label="Chunk complete", state="complete")
             st.warning("Partial fetch complete. Click Continue to proceed.")
-            st.stop()
+            # st.stop()
 
         status.update(label="Done!", state="complete")
         st.success("🎉 All records fetched successfully!")
