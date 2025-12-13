@@ -80,29 +80,12 @@ if st.button("🔍 Fetch Data from Coretax"):
         status_placeholder.empty()
         
         # get details for all headers
-        with st.status("Fetching details...", expanded=True) as status:
-            details = []
-            fails = []
-            new_fails = []
-            
-            url = BASE_URL + "/einvoiceportal/api/outputinvoice/view"
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json"
-            }
-                
-            details,fails = base.fetch_details(status,details,fails,record_ids,token,taxpayer_id,url,headers)
-            
-            MAX_RETRIES = base.MAX_RETRIES
-            retry_count = 0
-
-            while len(fails) > 0 and retry_count < MAX_RETRIES:
-                retry_count += 1
-                st.info(f"Retrying {len(fails)} failed records... Attempt {retry_count}/{MAX_RETRIES}")
-
-                details,new_fails = base.fetch_details(status,details,new_fails,fails,token,taxpayer_id,url,headers)
-                
-            status.update(label="Done!", state="complete")
+        url = BASE_URL + "/einvoiceportal/api/outputinvoice/view"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        details = base.fetch_details(record_ids,token,taxpayer_id,url,headers)
 
     except requests.exceptions.RequestException as e:
         status_placeholder.empty()

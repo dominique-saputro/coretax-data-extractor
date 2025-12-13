@@ -3,9 +3,13 @@ import pandas as pd
 import requests
 import time
 import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE_URL = "https://coretaxdjp.pajak.go.id"
 MAX_RETRIES = 3
+CHUNK_SIZE = 200        
+MAX_WORKERS = 8        
+REQUEST_TIMEOUT = (10, 120)
 
 month_mapping = {
     "January": "TD.00701",
@@ -116,40 +120,130 @@ def parameter_body(month_mapping=month_mapping):
     rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=200, step=100)
     return period,year,rows
 
-def fetch_details(status,details,fails,record_ids,token,taxpayer_id,url,headers):
-    last_heartbeat = time.time()
-    HEARTBEAT_INTERVAL = 5
-    
-    for i, rid in enumerate(record_ids):
-        status.update(label=f"Fetching {i+1}/{len(record_ids)}...", state="running")
-        
-        if time.time() - last_heartbeat > HEARTBEAT_INTERVAL:
-            last_heartbeat = time.time()
-        
-        if i % 300 == 0:
+def fetch_details(record_ids,token,taxpayer_id,url,headers):
+    if "cursor" not in st.session_state:
+        st.session_state.cursor = 0
+        st.session_state.details = []
+        st.session_state.fails = []
+
+    total = len(record_ids)
+    start = st.session_state.cursor
+    end = min(start + CHUNK_SIZE, total)
+    chunk = record_ids[start:end]
+
+    with st.status(
+        f"Processing records {start+1}–{end}/{total}",
+        expanded=True
+    ) as status:
+
+        keepalive(token)
+
+        details, fails = fetch_chunk_parallel(
+            chunk,
+            url,
+            headers,
+            token,
+            taxpayer_id,
+            status,
+            MAX_WORKERS
+        )
+
+        st.session_state.details.extend(details)
+        st.session_state.fails.extend(fails)
+        st.session_state.cursor = end
+
+        # 🔁 retry logic with cap
+        retries = 0
+        while st.session_state.fails and retries < MAX_RETRIES:
+            retries += 1
+            status.update(
+                label=f"Retrying failed records ({retries}/{MAX_RETRIES})",
+                state="running"
+            )
+
             keepalive(token)
-            
-        if "output" in url:
-            payload = {
-                "RecordIdentifier": f"{rid}",
-                "EinvoiceVATStatus": "VAT_VAT",
-                "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
-            }
-        else:
-            payload = {
-                "RecordIdentifier": f"{rid}",
-                "EinvoiceVATStatus": "",
-                "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
-            }
-        
-        try:
-            resp = requests.post(url, headers=headers, json=payload, timeout=(10, 180))
-            resp.raise_for_status()
-            detail_data = resp.json()
-            details.append(detail_data.get("Payload", detail_data))
-        except requests.exceptions.RequestException as e:
-            fails.append(rid)
-            st.warning(f"⚠️ Failed to fetch details for RecordId[{i}]. Will try again later. Please Hold.")
-            time.sleep(1)
-        
-    return details,fails
+
+            retry_details, retry_fails = fetch_chunk_parallel(
+                st.session_state.fails,
+                url,
+                headers,
+                token,
+                taxpayer_id,
+                status,
+                MAX_WORKERS
+            )
+
+            st.session_state.details.extend(retry_details)
+            st.session_state.fails = retry_fails
+
+        if st.session_state.cursor < total:
+            status.update(label="Chunk complete", state="complete")
+            st.warning("Partial fetch complete. Click Continue to proceed.")
+            st.stop()
+
+        status.update(label="Done!", state="complete")
+        st.success("🎉 All records fetched successfully!")
+
+    return st.session_state.details
+
+def fetch_one(rid, url, headers, token, taxpayer_id):
+    if "output" in url:
+        payload = {
+            "RecordIdentifier": rid,
+            "EinvoiceVATStatus": "VAT_VAT",
+            "TaxpayerAggregateIdentifier": taxpayer_id
+        }
+    else:
+        payload = {
+            "RecordIdentifier": rid,
+            "EinvoiceVATStatus": "",
+            "TaxpayerAggregateIdentifier": taxpayer_id
+        }
+
+    resp = requests.post(
+        url,
+        headers=headers,
+        json=payload,
+        timeout=(10, 120)
+    )
+    resp.raise_for_status()
+    return resp.json().get("Payload", {})
+
+def fetch_chunk_parallel(
+    record_ids,
+    url,
+    headers,
+    token,
+    taxpayer_id,
+    status,
+    max_workers=8
+):
+    results = []
+    fails = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(
+                fetch_one,
+                rid,
+                url,
+                headers,
+                token,
+                taxpayer_id
+            ): rid
+            for rid in record_ids
+        }
+
+        for i, future in enumerate(as_completed(futures)):
+            rid = futures[future]
+            status.update(
+                label=f"Fetched {i+1}/{len(record_ids)}",
+                state="running"
+            )
+
+            try:
+                results.append(future.result())
+            except Exception:
+                fails.append(rid)
+
+    return results, fails
