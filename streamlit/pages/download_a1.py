@@ -72,7 +72,7 @@ spt_choice = st.selectbox(
 if spt_choice is not None:
     spt_type = spt_options[spt_choice]
 else:
-    st.warning("No SPT available for your role.")
+    st.warning("Not authorized for your role.")
     st.stop()
 
 # --- 3️⃣ Fetch Data ---
