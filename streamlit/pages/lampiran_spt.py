@@ -149,6 +149,8 @@ if st.button("🔍 Fetch Data from Coretax"):
             case 'PPh21':
                 api_urls = [
                     "/returnsheetportal/api/loadarticle2126/l1a-grid",
+                    "/returnsheetportal/api/loadarticle2126/l1b-bpa1-grid",
+                    "/returnsheetportal/api/loadarticle2126/l2-bpa1-grid",
                     "/returnsheetportal/api/loadarticle2126/l3-bp21-grid"
                 ]
             case 'Unifikasi':

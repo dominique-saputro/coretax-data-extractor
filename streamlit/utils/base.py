@@ -3,6 +3,9 @@ import pandas as pd
 import requests
 import time
 import datetime
+import io
+import zipfile
+import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE_URL = "https://coretaxdjp.pajak.go.id"
@@ -249,3 +252,25 @@ def fetch_chunk_parallel(
                 fails.append(rid)
 
     return results, fails
+
+def build_zip_in_memory(responses):
+    zip_buffer = io.BytesIO()
+    total = len(responses)
+
+    progress = st.progress(0)
+    status = st.empty()
+
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for i,r in enumerate(responses, start=1):
+            status.info(f"Zipping {i}/{total}")
+            pdf_bytes = base64.b64decode(r["Content"])
+            filename = r.get("FileName", "file.pdf")
+            zipf.writestr(filename, pdf_bytes)
+            progress.progress(i / total)
+
+    status.empty()
+    progress.empty()
+
+    zip_buffer.seek(0)
+    return zip_buffer
+

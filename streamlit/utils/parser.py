@@ -96,10 +96,35 @@ def parse_lampiran(spt_choice,details):
             except Exception as e:
                 print("Error parsing df_l1a:", e)
                 df_l1a = pd.DataFrame(columns=["TIN", "Name", "WithholdingSlipsNumber", "WithholdingSlipsDate", "TaxObjectCode","GrossIncome", "TaxRate", "IncomeTax","TaxCertificate", "CountryCode","PlaceOfBusinessID", "RevenueCode", "Status"])
+                
+            # --- L-IB A1 ---
+            try:
+                raw_data = details[1]
+                if len(raw_data) == 0 : 
+                    df_l1b = pd.DataFrame()
+                else:
+                    records = raw_data.get("Data", []) if isinstance(raw_data, dict) else []
+                    df_l1b = pd.DataFrame(records)[["TIN", "Name", "WithholdingNumber", "WithholdingDate", "TaxObjectCode","GrossIncome", "IncomeTax","TaxCertificate", "CountryCode","PlaceOfBusinessID", "RevenueCode", "Status"]]
+                    df_l1b = clean_taxcertificate(df_l1b)
+            except Exception as e:
+                print("Error parsing df_l1b:", e)
+                df_l1b = pd.DataFrame(columns=["TIN", "Name", "WithholdingNumber", "WithholdingDate", "TaxObjectCode","GrossIncome", "IncomeTax","TaxCertificate", "CountryCode","PlaceOfBusinessID", "RevenueCode", "Status"])
+                
+            # --- L-II A1 ---
+            try:
+                raw_data = details[2]
+                if len(raw_data) == 0 : 
+                    df_l2 = pd.DataFrame()
+                else:
+                    records = raw_data.get("Data", []) if isinstance(raw_data, dict) else []
+                    df_l2 = pd.DataFrame(records)[["TIN", "Name", "WithholdingNumber", "WithholdingDate", "TaxObjectCode","GrossIncome", "IncomeTax","IncomePeriod", "CountryCode","PlaceOfBusinessID", "Status"]]
+            except Exception as e:
+                print("Error parsing df_l2:", e)
+                df_l2 = pd.DataFrame(columns=["TIN", "Name", "WithholdingNumber", "WithholdingDate", "TaxObjectCode","GrossIncome", "IncomeTax","IncomePeriod", "CountryCode","PlaceOfBusinessID", "Status"])
 
             # --- L-III ---
             try:
-                raw_data = details[1]  
+                raw_data = details[3]  
                 if len(raw_data) == 0 : 
                     df_l3 = pd.DataFrame()
                 else:
@@ -112,6 +137,8 @@ def parse_lampiran(spt_choice,details):
             
             dfs = {
                 "L-IA":df_l1a,
+                "L-IB A1":df_l1b,
+                "L-II A1":df_l2,
                 "L-III":df_l3,
             }
         case 'Unifikasi':
