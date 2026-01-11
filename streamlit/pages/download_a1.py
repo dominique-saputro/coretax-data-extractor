@@ -238,60 +238,6 @@ if st.button("🔍 Fetch Data from Coretax"):
             st.warning(f"{i+1}. {fail["TaxIdentificationNumber"]} - {fail["Name"]}")
     st.success(f"✅ Downloaded {len(details)} files successfully")
 
-
-
-#     status_placeholder.info("Starting download from Coretax API...")
-#     total = len(download_list)
-#     progress_bar = st.progress(0)
-#     status_text = st.empty()
-#     details = []
-#     fails = []
-#     url = BASE_URL + "/withholdingslipsportal/api/DownloadWithholdingSlips/download-pdf-document"
-#     headers = {
-#         "Authorization": f"Bearer {token}",
-#         "Content-Type": "application/json"
-#     }
-#     try:    
-#         for i, row in enumerate(download_list, start=1):
-#             status_text.info(f"Fetching file {i}/{total}")
-            
-#             payload = {
-#                 "WithholdingSlipsAggregateIdentifier": f"{row['WithholdingslipsAggregateIdentifier']}",
-#                 "WithholdingSlipsRecordIdentifier": f"{row['RecordId']}",
-#                 "DocumentAggregateIdentifier": f"{row['DocumentFormAggregateIdentifier']}",
-#                 "TaxpayerAggregateIdentifier": f"{taxpayer_id}",
-#                 "EbupotType": "EBUPOTBPA1",
-#                 "DocumentDate": f"{row['LastUpdatedDate']}",
-#                 "TaxIdentificationNumber": f"{row['TaxIdentificationNumber']}",
-#             }
-
-#             try:
-#                 resp = requests.post(url, headers=headers, json=payload,timeout=(10, 120))
-#                 resp.raise_for_status()
-#                 detail_data = resp.json()
-                
-#                 content = detail_data.get("Content")
-#                 filename = f"{row['Name']}.pdf" 
-
-#                 if content and filename:
-#                     details.append({
-#                         "Content": content,
-#                         "FileName": filename
-#                     })
-                    
-#             except requests.exceptions.RequestException as e:
-#                 status_placeholder.empty()
-#                 st.warning(f"⚠️ Failed to fetch PDF: {e}")
-#                 fails.append(row)
-            
-#             progress_bar.progress(i / total)
-            
-#         status_text.empty()
-#         progress_bar.empty()       
-#     except requests.exceptions.RequestException as e:
-#         status_placeholder.empty()
-#         st.error(f"Request failed: {e}")
-
 # --- 4️⃣ Compile PDF into ZIP ---                
     if details:
         try:
