@@ -69,8 +69,9 @@
           "Segoe UI Mono";
         font-size: 11px;
         white-space: pre-wrap;
-        max-height: 160px;
-        overflow: auto;
+        max-height: 80px;
+        max-width: 400px;
+        overflow: hidden;
       }
       .controls {
         display: flex;
@@ -113,15 +114,6 @@
         overflow: auto;
         font-size: 12px;
       }
-      #history {
-        margin-top: 10px;
-        font-size: 12px;
-      }
-      .history-entry {
-        border-top: 1px solid #e6eef0;
-        padding-top: 4px;
-        margin-top: 4px;
-      }
       .empty {
         color: var(--muted);
         padding: 14px;
@@ -129,38 +121,41 @@
         border-radius: 8px;
         text-align: center;
       }
+      .status {
+        font-size: 11px;
+        padding: 6px 8px;
+        border-radius: 3px;
+        text-align: center;
+        margin-top: 8px;
+        display: none;
+      }
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        display: block;
+      }
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        display: block;
+      }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <h2>
-        Coretax Token
-        <button id="refreshBtn" class="refresh" title="Reload">⟳</button>
-      </h2>
-
-      <div class="meta">
-        <div id="status" class="pill">No token</div>
-        <div id="exp" class="pill" style="display: none"></div>
-        <div id="time" class="pill" style="display: none"></div>
-      </div>
+      <h2>Coretax Token</h2>
 
       <div id="tokenArea">
-        <div id="tokenShort" class="tokenBox">No token captured yet.</div>
+        <div id="tokenDisplay" class="tokenBox">No token captured yet.</div>
+        <div class="pill" id="timestamp"></div>
         <div class="controls">
-          <button id="copyBtn">Copy access_token</button>
-          <button id="downloadBtn" class="secondary">Download JSON</button>
-          <button id="openApiBtn" class="secondary">Open API Handler</button>
-          <button id="clearBtn" class="danger">Clear</button>
+          <button id="openApiBtn">Open Extractor</button>
+          <button id="refreshBtn" class="secondary">Refresh Token</button>
+          <button id="copyBtn" class="secondary">Copy Token</button>
         </div>
       </div>
 
-      <small class="muted">Full token JSON (read-only)</small>
-      <pre id="tokenJson" class="json">No token captured yet.</pre>
-
-      <div id="history">
-        <small class="muted">Recent token captures</small>
-        <div id="historyList" class="empty">No captures yet.</div>
-      </div>
+      <div class="status" id="status"></div>
     </div>
     <script src="pako.min.js"></script>
     <script src="popup.js"></script>

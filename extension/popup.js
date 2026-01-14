@@ -1,85 +1,75 @@
-const statusEl = document.getElementById('status');
-const expEl = document.getElementById('exp');
-const timeEl = document.getElementById('time');
-const tokenShort = document.getElementById('tokenShort');
-const tokenJson = document.getElementById('tokenJson');
-const copyBtn = document.getElementById('copyBtn');
-const downloadBtn = document.getElementById('downloadBtn');
-const clearBtn = document.getElementById('clearBtn');
-const refreshBtn = document.getElementById('refreshBtn');
-const openApiBtn = document.getElementById('openApiBtn');
-const historyList = document.getElementById('historyList');
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('copyBtn').addEventListener('click', copyToken);
+  document.getElementById('openApiBtn').addEventListener('click', openExtractor);
+  // Auto-extract on open
+  extractToken();
+});
 
-function formatTime(iso) {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleString();
-  } catch {
-    return iso;
+function updateTimestamp() {
+  const now = new Date();
+  document.getElementById('timestamp').textContent = `Grabbed: ${now.toLocaleTimeString()}`;
+}
+
+function showStatus(message, type) {
+  const status = document.getElementById('status');
+  status.textContent = message;
+  status.className = `status ${type}`;
+
+  // Keep error messages longer, auto-close others
+  if (type !== 'error') {
+    setTimeout(() => { status.className = 'status'; }, 5000);
   }
 }
 
-function renderToken(obj) {
-  if (!obj) {
-    statusEl.textContent = 'No token';
-    expEl.style.display = 'none';
-    timeEl.style.display = 'none';
-    tokenShort.textContent = 'No token captured yet.';
-    tokenJson.textContent = 'No token captured yet.';
-    copyBtn.disabled = true;
-    downloadBtn.disabled = true;
-    clearBtn.disabled = true;
-    openApiBtn.disabled = true;
+function extractToken() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = 'Refreshing...';
+
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.sendMessage(tabs[0].id, { action: 'getToken' }, (response) => {
+      btn.disabled = false;
+      btn.textContent = 'Refresh Token';
+
+      if (chrome.runtime.lastError || !response) {
+        showStatus('Could not grab token from coretaxdjp', 'error');
+        return;
+      }
+
+      if (response.token) {
+        const tokenDisplay = document.getElementById('tokenDisplay');
+        tokenDisplay.textContent = response.token;
+        chrome.storage.local.set({ accessToken: response.token, tokenTime: Date.now() });
+
+        // Auto-copy to clipboard
+        // navigator.clipboard.writeText(response.token).then(() => {
+        //   updateTimestamp();
+        //   showStatus('Token grabbed and copied!', 'success');
+        // }).catch(() => {
+        //   updateTimestamp();
+        //   showStatus('Token grabbed (copy failed)', 'error');
+        // });
+        updateTimestamp();
+        showStatus('Token grabbed!', 'success');
+      } else if (response.error) {
+        showStatus(response.error, 'error');
+      } else {
+        showStatus('No token found', 'error');
+      }
+    });
+  });
+}
+
+function copyToken() {
+  const token = document.getElementById('tokenDisplay').textContent;
+  if (!token || token == 'No token captured yet.') {
+    showStatus('No token to copy', 'error');
     return;
   }
-
-  const when = obj.__captured_at || obj.captured_at || null;
-  const expiresIn = obj.expires_in || null;
-  const access = obj.access_token || null;
-  statusEl.textContent = '✅ Token captured';
-  timeEl.style.display = when ? 'inline-block' : 'none';
-  expEl.style.display = expiresIn ? 'inline-block' : 'none';
-  if (when) timeEl.textContent = `At ${formatTime(when)}`;
-  if (expiresIn) expEl.textContent = `Expires in ${expiresIn}s`;
-
-  tokenShort.textContent = access
-    ? `${access.slice(0, 40)}...${access.slice(-10)}`
-    : 'No access_token property';
-  tokenJson.textContent = JSON.stringify(obj, null, 2);
-
-  copyBtn.disabled = !access;
-  downloadBtn.disabled = false;
-  clearBtn.disabled = false;
-  openApiBtn.disabled = false;
-}
-
-function renderHistory(history) {
-  if (!history || history.length === 0) {
-    historyList.innerHTML = '<div class="empty">No captures yet.</div>';
-    return;
-  }
-
-  historyList.innerHTML = history
-    .slice(-5)
-    .reverse()
-    .map(
-      (h) => `
-      <div class="history-entry">
-        <b>${formatTime(h.time)}</b><br/>
-        <small>${h.access_token ? `${h.access_token.slice(0, 25)}...` : 'No token'}</small>
-      </div>`
-    )
-    .join('');
-}
-
-function load() {
-  chrome.storage.local.get(['coretax_token', 'coretax_token_time', 'coretax_history'], (d) => {
-    const token = d.coretax_token || null;
-    if (token && !token.__captured_at) {
-      token.__captured_at = d.coretax_token_time || new Date().toISOString();
-    }
-    renderToken(token);
-    renderHistory(d.coretax_history || []);
+  navigator.clipboard.writeText(token).then(() => {
+    showStatus('Copied to clipboard!', 'success');
+  }).catch(() => {
+    showStatus('Copy failed', 'error');
   });
 }
 
@@ -98,67 +88,18 @@ function compressAndEncode(token) {
     .replace(/=+$/, '');
 }
 
-// --- button actions ---
-copyBtn.addEventListener('click', async () => {
-  chrome.storage.local.get('coretax_token', async (d) => {
-    const t = d.coretax_token;
-    if (!t || !t.access_token) return;
-    try {
-      await navigator.clipboard.writeText(t.access_token);
-      copyBtn.textContent = 'Copied!';
-      setTimeout(() => (copyBtn.textContent = 'Copy access_token'), 1200);
-    } catch (e) {
-      window.prompt('Copy the token manually:', t.access_token);
-    }
-  });
-});
-
-downloadBtn.addEventListener('click', () => {
-  chrome.storage.local.get('coretax_token', (d) => {
-    const t = d.coretax_token;
-    if (!t) return;
-    const blob = new Blob([JSON.stringify(t, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'coretax_token.json';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  });
-});
-
-clearBtn.addEventListener('click', () => {
-  if (!confirm('Clear stored token and request details?')) return;
-  chrome.storage.local.remove(['coretax_token', 'coretax_token_time', 'coretax_history'], load);
-});
-
-refreshBtn.addEventListener('click', load);
-
-openApiBtn.addEventListener('click', () => {
-  chrome.storage.local.get('coretax_token', (d) => {
-    const t = d.coretax_token;
-    if (!t || !t.access_token) {
-      alert('No access_token to send.');
-      return;
-    }
-    const shortToken = compressAndEncode(t);
-
-    // -------- use this for production
-    const apiUrl = `https://coretax-orientcomp.streamlit.app?ct=${shortToken}`;
-
-    // -------- use this for localtesting
-    // const apiUrl = `http://localhost:8501?token=${t.access_token}`;
-    chrome.tabs.create({ url: apiUrl });
-  });
-});
-
-// listen to storage changes
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && (changes.coretax_token || changes.coretax_token_time)) {
-    load();
+function openExtractor(){
+  const token = document.getElementById('tokenDisplay').textContent;
+  if (!token || token == 'No token captured yet.') {
+    showStatus('No token to send', 'error');
+    return;
   }
-});
+  const shortToken = compressAndEncode(token);
 
-load();
+  // -------- use this for production
+  const apiUrl = `https://coretax-orientcomp.streamlit.app?ct=${shortToken}`;
+
+  // -------- use this for localtesting
+  // const apiUrl = `http://localhost:8501?token=${t.access_token}`;
+  chrome.tabs.create({ url: apiUrl });
+}

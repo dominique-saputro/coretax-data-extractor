@@ -26,7 +26,7 @@ else:
 
 
     # ------------ Use this for production
-    encoded = query_params.get("ct", [None])[0] if isinstance(query_params.get("ct"), list) else query_params.get("ct")
+    encoded = st.query_params.get("ct")
     token = None
     if encoded:
         try:
@@ -43,6 +43,9 @@ else:
             st.success("✅ Token successfully decoded")
         except Exception as e:
             st.error(f"Failed to decode token: {e}")
+    else:
+        st.error("Missing token in URL")
+        st.stop()
 
 if token:
     if "validated" not in st.session_state:

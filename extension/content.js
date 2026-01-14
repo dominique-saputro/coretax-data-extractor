@@ -1,60 +1,18 @@
-console.log("[Coretax Sniffer] Injecting via chrome-extension://");
-
-// --- Inject page_hook.js into the actual webpage ---
-const script = document.createElement("script");
-script.src = chrome.runtime.getURL("page_hook.js");
-(document.head || document.documentElement).appendChild(script);
-script.onload = () => {
-  console.log("[Coretax Sniffer] Page hook script loaded");
-  script.remove();
-};
-
-// --- Bridge between page context and extension background ---
-window.addEventListener("message", (event) => {
-  if (event.source !== window) return; // only listen to our own window
-  if (!event.data || event.data.type !== "CORETAX_TOKEN") return;
-
-  const token = event.data.data;
-  console.log("[Coretax Sniffer] 🔄 Token received from page, forwarding to background:", token);
-
-  chrome.runtime.sendMessage({
-      type: "TOKEN_CAPTURED",
-      data: token,
-    },
-    (response) => {
-      if (chrome.runtime.lastError) {
-        console.warn("[Coretax Sniffer] SendMessage error:", chrome.runtime.lastError.message);
-      } else {
-        console.log("[Coretax Sniffer] ✅ Token sent successfully to background:", response);
-      }
-    }
-  );
-});
-
-// --- Optional: direct fetch hook (fallback if page_hook is blocked) ---
-(function () {
-  const originalFetch = window.fetch;
-  window.fetch = async (...args) => {
-    const response = await originalFetch(...args);
-
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'getToken') {
     try {
-      const url = args[0];
-      if (typeof url === "string" && url.includes("/connect/token")) {
-        const clone = response.clone();
-        const data = await clone.json();
+      const searchId = 'cats-portal-angular-clientuser';
+      const keys = Object.keys(window.sessionStorage).filter(k => k.startsWith(searchId));
 
-        if (data.access_token) {
-          console.log("[Coretax Sniffer] 🎯 Access token found (direct hook):", data.access_token);
-          chrome.runtime.sendMessage({
-            type: "TOKEN_CAPTURED",
-            data: data,
-          });
+      if (keys.length) {
+        const data = JSON.parse(window.sessionStorage.getItem(keys[keys.length - 1]));
+        if (data?.access_token) {
+          return sendResponse({ token: data.access_token });
         }
       }
-    } catch (err) {
-      console.error("[Coretax Sniffer] Error reading token:", err);
+      sendResponse({ error: 'Token not found in sessionStorage' });
+    } catch (error) {
+      sendResponse({ error: `Error: ${error.message}` });
     }
-
-    return response;
-  };
-})();
+  }
+});

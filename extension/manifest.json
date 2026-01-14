@@ -1,32 +1,22 @@
 {
-  "name": "Coretax Token Sniffer",
-  "version": "1.1",
+  "name": "Coretax Token Extractor",
+  "version": "2.0",
   "manifest_version": 3,
   "description": "Capture Coretax access tokens and send them to Streamlit.",
-  "permissions": [
-    "storage",
-    "scripting",
-    "activeTab"
-  ],
-  "host_permissions": [
-    "https://coretaxdjp.pajak.go.id/*"
-  ],
-  "background": {
-    "service_worker": "background.js"
-  },
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": ["https://coretaxdjp.pajak.go.id/*"],
   "action": {
     "default_popup": "popup.html"
   },
   "content_scripts": [
     {
       "matches": ["https://coretaxdjp.pajak.go.id/*"],
-      "js": ["content.js"],
-      "run_at": "document_start"
+      "js": ["content.js"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["pako.min.js","page_hook.js"],
+      "resources": ["pako.min.js", "page_hook.js"],
       "matches": ["https://coretaxdjp.pajak.go.id/*"]
     }
   ]
