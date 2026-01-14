@@ -37,8 +37,7 @@ else:
             # Decode + decompress
             compressed = base64.b64decode(padded)
             decompressed = zlib.decompress(compressed)
-            token_json = json.loads(decompressed.decode("utf-8"))
-            token = token_json.get("access_token", [])
+            token = json.loads(decompressed.decode("utf-8"))
 
             st.success("✅ Token successfully decoded")
         except Exception as e:
