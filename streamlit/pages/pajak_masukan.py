@@ -17,7 +17,13 @@ base.auth_header(token,taxpayer_id,taxpayer_name)
     
 # --- 2️⃣ Parameters ---
 period,year,rows = base.parameter_body()
-taxpayer_status = st.checkbox("Status PKP", value=True)
+taxpayer_status = st.selectbox(
+        "Select TaxInvoice Status",
+        options={"CREDITED",
+                 "UNCREDITED",
+                 "APPROVED"},
+        index=0,
+    )
 current_params = {
     "period": period,  # list → tuple (hashable)
     "year": year,
@@ -43,7 +49,7 @@ if st.button("🔍 Fetch Data from Coretax"):
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
-    if taxpayer_status: 
+    if taxpayer_status != "APPROVED": 
         payload = {
             "BuyerTaxpayerAggregateIdentifier": f"{taxpayer_id}",
             "First": 0,
@@ -67,7 +73,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 },
                 {
                     "PropertyName": "TaxInvoiceStatus",
-                    "Value": "CREDITED",
+                    "Value": taxpayer_status,
                     "MatchMode": "equals",
                     "CaseSensitive": True,
                     "AsString": False
@@ -100,7 +106,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 },
                 {
                     "PropertyName": "TaxInvoiceStatus",
-                    "Value": "APPROVED",
+                    "Value": taxpayer_status,
                     "MatchMode": "equals",
                     "CaseSensitive": True,
                     "AsString": False
