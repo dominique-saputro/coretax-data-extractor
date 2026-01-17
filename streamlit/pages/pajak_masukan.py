@@ -22,7 +22,6 @@ taxpayer_status = st.selectbox(
         options={"CREDITED",
                  "UNCREDITED",
                  "APPROVED"},
-        index=0,
     )
 current_params = {
     "period": period,  # list → tuple (hashable)
