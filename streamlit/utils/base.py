@@ -146,7 +146,7 @@ def parameter_body(month_mapping=month_mapping):
     first_day_this_month = today.replace(day=1)
     last_month_last_day = first_day_this_month - datetime.timedelta(days=1)
     last_month_name = last_month_last_day.strftime("%B")
-    current_year = today.year()
+    current_year = today.year
 
     # Prepare selectbox
     month_names = list(month_mapping.keys())
