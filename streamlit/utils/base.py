@@ -146,6 +146,7 @@ def parameter_body(month_mapping=month_mapping):
     first_day_this_month = today.replace(day=1)
     last_month_last_day = first_day_this_month - datetime.timedelta(days=1)
     last_month_name = last_month_last_day.strftime("%B")
+    current_year = today.year()
 
     # Prepare selectbox
     month_names = list(month_mapping.keys())
@@ -156,7 +157,7 @@ def parameter_body(month_mapping=month_mapping):
         index=default_index,
     )
     period = month_mapping[months]
-    year = st.number_input("TaxInvoiceYear", value=2025)
+    year = st.number_input("TaxInvoiceYear", value=current_year)
     rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=200, step=100)
     return period,year,rows
 
