@@ -65,7 +65,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 },
                 {
                     "PropertyName": "TaxInvoiceYear",
-                    "Value": 2025,
+                    "Value": year,
                     "MatchMode": "equals",
                     "CaseSensitive": True,
                     "AsString": False
@@ -98,7 +98,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 },
                 {
                     "PropertyName": "TaxInvoiceYear",
-                    "Value": 2025,
+                    "Value": year,
                     "MatchMode": "equals",
                     "CaseSensitive": True,
                     "AsString": False

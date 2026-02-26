@@ -3,6 +3,7 @@ import requests
 import base64
 import zlib
 import json
+from utils import base
 from ast import literal_eval
 
 st.set_page_config(
@@ -74,43 +75,7 @@ if token:
             roles = set(map(int, roles))
             
             # ------------ With Safety guard
-            userid = [
-                "0014826788619000", #AJP
-                "0929849651606000", #ALAIKA
-                "0011081726607000", #AMB
-                "0017929589606000", #AP
-                "0266437581619000", #APA
-                "0613315589604000", #ASTA
-                "0025326661714000", #BARTIM
-                "0941727117424000", #BK
-                "0827914995722000", #BKA
-                "0017925165615000", #CM
-                "0638937201609000", #CSP
-                "0010001519052000", #DAI
-                "0022978084651000", #DMS
-                "0961882339624000", #DNX
-                "0813485547806000", #DY
-                "0023769375532000", #EMU
-                "0022978076651000", #FWD
-                "0012333423641000", #GB
-                "0742752595619000", #KA4
-                "0763620879604000", #LA
-                "0029267960926000", #LM
-                "0955176037605000", #LPL
-                "00028245173614000", #MSA
-                "0531867802606000", #ORC
-                "0961899739925000", #PF
-                "0712014273801000", #PLI
-                "0022119804629000", #PMX
-                "0031059744643000", #SAC
-                "0621792662656000", #SIP
-                "0011098050651000", #SKMS
-                "0014815146614000", #SST
-                "0530442896609000", #SYS
-                "0025628108641000", #TMP
-                "0769014697604000", #URD
-                ]
-            if tin in userid: 
+            if tin in base.WHITELIST: 
                 st.session_state["token"] = token
                 st.session_state["taxpayer_id"] = taxpayer_id
                 st.session_state["taxpayer_name"] = taxpayer_name
