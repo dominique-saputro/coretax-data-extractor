@@ -73,7 +73,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 {
                     "PropertyName": "TaxInvoiceStatus",
                     "Value": taxpayer_status,
-                    "MatchMode": "equals",
+                    "MatchMode": "contains",
                     "CaseSensitive": True,
                     "AsString": False
                 }
@@ -106,7 +106,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 {
                     "PropertyName": "TaxInvoiceStatus",
                     "Value": taxpayer_status,
-                    "MatchMode": "equals",
+                    "MatchMode": "contains",
                     "CaseSensitive": True,
                     "AsString": False
                 }
