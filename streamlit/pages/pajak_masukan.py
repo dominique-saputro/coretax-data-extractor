@@ -59,7 +59,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 {
                     "PropertyName": "PeriodCredit",
                     "Value": period,
-                    "MatchMode": "equals",
+                    "MatchMode": "contains",
                     "CaseSensitive": True,
                     "AsString": False
                 },
@@ -92,7 +92,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 {
                     "PropertyName": "TaxInvoicePeriod",
                     "Value": period,
-                    "MatchMode": "equals",
+                    "MatchMode": "contains",
                     "CaseSensitive": True,
                     "AsString": False
                 },
