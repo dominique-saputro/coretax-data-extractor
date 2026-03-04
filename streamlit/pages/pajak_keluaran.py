@@ -137,7 +137,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                 "FormDataObj_TransactionDetailsData_VAT": "jmlppn",
                 "BuyerName": "nmsup",
                 "FormDataObj_TransactionDetailsData_Name": "nmbrg",
-                "divisi": "divisi",
+                "InvoiceStatus": "divisi",
                 "FormDataObj_TransactionDocumentData_Reference": "ref"
             }
 
@@ -171,6 +171,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                         # add seller info
                         "BuyerTIN": payload.get("BuyerTIN", ""),
                         "BuyerName": payload.get("BuyerName", ""),
+                        "InvoiceStatus": payload.get("InvoiceStatus", ""),
                     }
                     all_rows.append(row)
 
