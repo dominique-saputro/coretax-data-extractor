@@ -48,7 +48,7 @@ for name, info in ROLE_SPT_MAPPING.items():
 spt_options = {
     # "PPN": "VAT_VAT",
     "Unifikasi": "ICT_WT",
-    "A1":"ICT_WIT"
+    # "A1":"ICT_WIT"
 }
 today = datetime.datetime.now()
 _, last_day = calendar.monthrange(today.year, today.month)
@@ -103,7 +103,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             },
             {
                 "PropertyName": "DocumentTitle",
-                "Value": "Bukti Potong",
+                "Value": "Bukti Potong PPh Unifikasi (BPPU)",
                 "MatchMode": "startsWith",
                 "CaseSensitive": False,
                 "AsString": False
