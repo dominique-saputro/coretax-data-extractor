@@ -138,6 +138,10 @@ if st.button("🔍 Fetch Data from Coretax"):
                 {k: r.get(k) for k in wanted_keys}
                 for r in records
             )
+        else:
+            status_placeholder.empty()
+            st.warning(f"No records found for {spt_choice} - {date[0].strftime("%Y/%m/%d")} ~ {date[1].strftime("%Y/%m/%d")}")
+            st.stop()
         
     except requests.exceptions.RequestException as e:
         status_placeholder.empty()
