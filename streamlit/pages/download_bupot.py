@@ -267,7 +267,7 @@ if st.button("🔍 Fetch Data from Coretax"):
             st.download_button(
                 "📁 Download Bupot",
                 data=zip_buffer,
-                file_name=f"bupot_{spt_type.lower()}.zip",
+                file_name=f"bupot_{spt_choice.lower()}.zip",
                 mime="application/zip"
             )
             status_placeholder.empty()
