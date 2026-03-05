@@ -12,8 +12,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE_URL = base.BASE_URL
 
-st.set_page_config(page_title="Download BPPU", layout="centered", page_icon="📄")
-st.title("📄 Download BPPU")
+st.set_page_config(page_title="Download Bupot - Dokumen Saya", layout="centered", page_icon="📄")
+st.title("📄 Download Bupot - Dokumen Saya")
 
 # --- 1️⃣ Token Validation ---
 token = st.session_state.get("token", None)
@@ -265,9 +265,9 @@ if st.button("🔍 Fetch Data from Coretax"):
             zip_buffer.seek(0)
             
             st.download_button(
-                "📁 Download Bupot Unifikasi",
+                "📁 Download Bupot",
                 data=zip_buffer,
-                file_name="bupot_uni.zip",
+                file_name=f"bupot_{spt_type.lower()}.zip",
                 mime="application/zip"
             )
             status_placeholder.empty()
