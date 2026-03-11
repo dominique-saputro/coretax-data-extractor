@@ -31,7 +31,7 @@ else:
         st.session_state.last_params = current_params
         st.info("🔄 Parameters changed — progress reset.")
         
-st.warning('Coretax Error - Faktur tidak bisa difilter berdasarkan status. Program akan menarik SEMUA FAKTUR per bulan', icon="⚠️")
+# st.warning('Coretax Error - Faktur tidak bisa difilter berdasarkan status. Program akan menarik SEMUA FAKTUR per bulan', icon="⚠️")
 
 # --- 3️⃣ Fetch Data ---
 if st.button("🔍 Fetch Data from Coretax"):
@@ -64,14 +64,14 @@ if st.button("🔍 Fetch Data from Coretax"):
                 "CaseSensitive": True,
                 "AsString": False
             }    
-            # },
-            # {
-            #     "PropertyName": "TaxInvoiceStatus",
-            #     "Value": "APPROVED",
-            #     "MatchMode": "equals",
-            #     "CaseSensitive": True,
-            #     "AsString": False
-            # }
+            ,
+            {
+                "PropertyName": "TaxInvoiceStatus",
+                "Value": "APPROVED",
+                "MatchMode": "equals",
+                "CaseSensitive": True,
+                "AsString": False
+            }
         ],
         "LanguageId": "id-ID",
         "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
