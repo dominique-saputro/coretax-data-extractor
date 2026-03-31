@@ -69,6 +69,27 @@ WHITELIST = [
     "3578092407720001", #ANTON
 ]
 
+ROLE_SPT_MAPPING = {
+    32: {
+        "role": "PPN",
+        "code": "VAT_VAT",
+        "search_key":"-",
+        "alt" : "PPN"
+    },
+    38: {
+        "role": "Unifikasi",
+        "code": "ICT_WT",
+        "search_key":"Bukti Potong PPh Unifikasi (BPPU)",
+        "alt" : "Unifikasi"
+    },
+    42: {
+        "role": "PPh21",
+        "code": "ICT_WIT",
+        "search_key":"Bukti Potong PPh Pasal 21",
+        "alt" : "A1 / BP21"
+    }
+}
+
 def keepalive(token):
     """Ping the Coretax KeepAlive endpoint to maintain session"""
     url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAlive"
@@ -78,7 +99,7 @@ def keepalive(token):
     }
     try:
         time.sleep(0.5)
-        resp = requests.post(url, headers=headers, timeout=10)
+        resp = requests.post(url, headers=headers, timeout=REQUEST_TIMEOUT)
         if resp.status_code == 200:
             st.write("💓 Session refreshed (KeepAlive successful).")
         else:
@@ -126,6 +147,23 @@ def get_period_end_date(period_code, year):
 def reverse_month_mapping(period):
     reverse_map = {v: k for k, v in month_mapping.items()}
     return reverse_map.get(period, "")
+
+def get_allowed_roles(code):
+    order = [32, 38, 42]
+
+    if not code:
+        return {}
+
+    # Ensure code is exactly 3 chars (pad if needed)
+    code = str(code).zfill(3)
+
+    allowed_roles = {}
+    for digit, role in zip(code, order):
+        if digit == "1":
+            entry = ROLE_SPT_MAPPING[role]
+            allowed_roles[entry["role"]] = entry
+
+    return allowed_roles
     
 def auth_header(token,taxpayer_id,taxpayer_name):
     """

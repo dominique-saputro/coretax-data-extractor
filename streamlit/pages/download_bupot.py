@@ -25,36 +25,9 @@ roles = st.session_state.get("roles", None)
 base.auth_header(token,taxpayer_id,taxpayer_name)
     
 # --- 2️⃣ Parameters ---
-roles = set(roles)
-spt_options = {}
-spt_search = {}
-ROLE_SPT_MAPPING = {
-    "PPN": {
-        "role": 32,
-        "code": "VAT_VAT",
-        "search_key":"-"
-    },
-    "Unifikasi": {
-        "role": 38,
-        "code": "ICT_WT",
-        "search_key":"Bukti Potong PPh Unifikasi (BPPU)"
-    },
-    "PPh21": {
-        "role": 42,
-        "code": "ICT_WIT",
-        "search_key":"Bukti Potong PPh Pasal 21"
-    }
-}
-for name, info in ROLE_SPT_MAPPING.items():
-    st.session_state[f"allow_{name.lower()}"] = info["role"] in roles
-    if info["role"] in roles:
-        spt_options[name] = info["code"]  
-        spt_search[name] = info["search_key"] 
-spt_options = {
-    # "PPN": "VAT_VAT",
-    "Unifikasi": "ICT_WT",
-    "PPh21":"ICT_WIT"
-}
+spt_options = base.get_allowed_roles(roles)
+spt_options.pop('PPN')
+
 today = datetime.datetime.now()
 _, last_day = calendar.monthrange(today.year, today.month)
 
@@ -69,11 +42,11 @@ spt_choice = st.selectbox(
     index=0 if spt_options else None
 )
 if spt_choice is not None:
-    spt_type = spt_options[spt_choice]
-    search_key = spt_search[spt_choice]
+    spt_type = spt_options[spt_choice]['code']
+    search_key = spt_options[spt_choice]['search_key']
 else:
     st.warning("Not authorized for your role.")
-    st.stop()
+    st.stop()   
 
 # --- 3️⃣ Fetch Data ---
 if st.button("🔍 Fetch Data from Coretax"):

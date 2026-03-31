@@ -1,8 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1"
+    />
     <title>Coretax Token Dashboard</title>
     <style>
       :root {
@@ -16,7 +19,13 @@
       body {
         margin: 0;
         padding: 0;
-        font-family: Inter, system-ui, Segoe UI, Roboto, "Helvetica Neue", Arial;
+        font-family:
+          Inter,
+          system-ui,
+          Segoe UI,
+          Roboto,
+          "Helvetica Neue",
+          Arial;
         background: var(--bg);
         color: #0f172a;
       }
@@ -52,6 +61,10 @@
         margin-bottom: 10px;
         flex-wrap: wrap;
       }
+      .meta-text {
+        font-size: 10px;
+        color: var(--muted);
+      }
       .pill {
         background: var(--card);
         padding: 6px 8px;
@@ -65,7 +78,8 @@
         color: #fff;
         padding: 10px;
         border-radius: 8px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",
           "Segoe UI Mono";
         font-size: 11px;
         white-space: pre-wrap;
@@ -145,17 +159,68 @@
     <div class="wrap">
       <h2>Coretax Token</h2>
 
-      <div id="tokenArea">
-        <div id="tokenDisplay" class="tokenBox">No token captured yet.</div>
-        <div class="pill" id="timestamp"></div>
-        <div class="controls">
-          <button id="openApiBtn">Open Extractor</button>
-          <button id="refreshBtn" class="secondary">Refresh Token</button>
-          <button id="copyBtn" class="secondary">Copy Token</button>
+      <div
+        id="userData"
+        class="meta"
+      >
+        <div
+          id="taxidDisplay"
+          class="meta-text"
+        >
+          No data captured yet.
+        </div>
+        <div
+          id="taxnameDisplay"
+          class="meta-text"
+        >
+          No data captured yet.
+        </div>
+        <div
+          id="tinDisplay"
+          class="meta-text"
+        >
+          No data captured yet.
+        </div>
+        <div
+          id="rolesDisplay"
+          class="meta-text"
+        >
+          No data captured yet.
         </div>
       </div>
 
-      <div class="status" id="status"></div>
+      <div id="tokenArea">
+        <div
+          id="tokenDisplay"
+          class="tokenBox"
+        >
+          No token captured yet.
+        </div>
+        <div
+          class="pill"
+          id="timestamp"
+        ></div>
+        <div class="controls">
+          <button id="openApiBtn">Open Extractor</button>
+          <button
+            id="refreshBtn"
+            class="secondary"
+          >
+            Refresh Token
+          </button>
+          <button
+            id="copyBtn"
+            class="secondary"
+          >
+            Copy Token
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="status"
+        id="status"
+      ></div>
     </div>
     <script src="pako.min.js"></script>
     <script src="popup.js"></script>

@@ -20,7 +20,6 @@ roles = st.session_state.get("roles", None)
 base.auth_header(token,taxpayer_id,taxpayer_name)
     
 # --- 2️⃣ Parameters ---
-roles = set(roles)
 month_mapping = {
     "January": "0101",
     "February": "0202",
@@ -35,32 +34,7 @@ month_mapping = {
     "November": "1111",
     "December": "1212",
 }
-spt_options = {}
-ROLE_SPT_MAPPING = {
-    "PPN": {
-        "role": 32,
-        "code": "VAT_VAT"
-    },
-    "Unifikasi": {
-        "role": 38,
-        "code": "ICT_WT"
-    },
-    "PPh21": {
-        "role": 42,
-        "code": "ICT_WIT"
-    }
-}
-
-for name, info in ROLE_SPT_MAPPING.items():
-    st.session_state[f"allow_{name.lower()}"] = info["role"] in roles
-    if info["role"] in roles:
-        spt_options[name] = info["code"]
-        
-# spt_options = {
-#     "PPN": "VAT_VAT",
-#     "Unifikasi": "ICT_WT",
-#     "PPh21":"ICT_WIT"
-# }
+spt_options = base.get_allowed_roles(roles)
 
 period,year,rows = base.parameter_body(month_mapping)
 period_num = int(period[:2]) 
@@ -70,7 +44,7 @@ spt_choice = st.selectbox(
     index=0 if spt_options else None
 )
 if spt_choice is not None:
-    spt_type = spt_options[spt_choice]
+    spt_type = spt_options[spt_choice]['code']
 else:
     st.warning("No SPT available for your role.")
     st.stop()

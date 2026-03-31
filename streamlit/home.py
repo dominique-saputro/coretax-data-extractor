@@ -57,34 +57,39 @@ if token:
         status_placeholder = st.empty()
         status_placeholder.info("Validating token with Coretax API...")
         try:
-            url = BASE_URL + "/identityproviderportal/connect/userinfo"
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json"
-            }
-            response = requests.post(url, headers=headers)
-            response.raise_for_status()
-            data = response.json()
+            # url = BASE_URL + "/identityproviderportal/connect/userinfo"
+            # headers = {
+            #     "Authorization": f"Bearer {token}",
+            #     "Content-Type": "application/json"
+            # }
+            # response = requests.post(url, headers=headers)
+            # response.raise_for_status()
+            # data = response.json()
 
-            taxpayer_id = data.get("taxpayer_id")
-            taxpayer_name = data.get("full_name")
-            tin = data.get("user_name")
-            rep_tin = data.get("RepresentativeTin")
-            roles = data.get("roles")
-            roles = literal_eval(roles)
-            roles = set(map(int, roles))
+            # taxpayer_id = data.get("taxpayer_id")
+            # taxpayer_name = data.get("full_name")
+            # tin = data.get("user_name")
+            # rep_tin = data.get("RepresentativeTin")
+            # roles = data.get("roles")
+            # roles = literal_eval(roles)
+            # roles = set(map(int, roles))
+            
+            taxpayer_id = st.query_params.get("taxid")
+            taxpayer_name = st.query_params.get("taxname")
+            tin = st.query_params.get("tin")
+            roles = st.query_params.get("roles")
             
             # ------------ With Safety guard
             if tin in base.WHITELIST: 
                 st.session_state["token"] = token
                 st.session_state["taxpayer_id"] = taxpayer_id
                 st.session_state["taxpayer_name"] = taxpayer_name
-                st.session_state["rep_tin"] = rep_tin
+                # st.session_state["rep_tin"] = rep_tin
                 st.session_state["roles"] = roles
   
-                st.session_state["allow_ppn"] = 32 in roles
-                st.session_state["allow_unifikasi"] = 38 in roles
-                st.session_state["allow_pph21"] = 42 in roles
+                # st.session_state["allow_ppn"] = 32 in roles
+                # st.session_state["allow_unifikasi"] = 38 in roles
+                # st.session_state["allow_pph21"] = 42 in roles
 
                 st.session_state["validated"] = True
 

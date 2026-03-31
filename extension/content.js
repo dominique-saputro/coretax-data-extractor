@@ -6,9 +6,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       if (keys.length) {
         const data = JSON.parse(window.sessionStorage.getItem(keys[keys.length - 1]));
-        if (data?.access_token) {
-          return sendResponse({ token: data.access_token });
-        }
+        const profile = data?.profile || null;
+        return sendResponse({
+          token: data?.access_token || null,
+          taxpayer_id: profile?.taxpayer_id || null,
+          tin: profile?.user_name || null,
+          taxpayer_name: profile?.full_name || null,
+          roles: profile?.roles || null,
+        });
       }
       sendResponse({ error: 'Token not found in sessionStorage' });
     } catch (error) {
