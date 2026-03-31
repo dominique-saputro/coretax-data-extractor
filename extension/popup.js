@@ -128,13 +128,12 @@ function openExtractor(){
   // -------- use this for production
   const apiUrl = `https://coretax-orientcomp.streamlit.app?taxid=${taxid}&taxname=${taxname}&tin=${tin}&roles=${roles}&ct=${shortToken}`;
 
-  // -------- use this for localtesting
-  // const apiUrl = `http://localhost:8501?token=${t.access_token}`;
-  // chrome.tabs.create({ url: apiUrl });
-
   navigator.clipboard.writeText(apiUrl).then(() => {
     showStatus('Copied to clipboard!', 'success');
   }).catch(() => {
     showStatus('Copy failed', 'error');
   });
+  // -------- use this for localtesting
+  // const apiUrl = `http://localhost:8501?token=${t.access_token}`;
+  chrome.tabs.create({ url: apiUrl });
 }
