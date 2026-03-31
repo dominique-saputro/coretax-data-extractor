@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('copyBtn').addEventListener('click', copyToken);
+  document.getElementById('copyShortBtn').addEventListener('click', copyShortToken);
   document.getElementById('openApiBtn').addEventListener('click', openExtractor);
   document.getElementById('refreshBtn').addEventListener('click', extractToken);
   // Auto-extract on open
@@ -92,6 +93,20 @@ function copyToken() {
     return;
   }
   navigator.clipboard.writeText(token).then(() => {
+    showStatus('Copied to clipboard!', 'success');
+  }).catch(() => {
+    showStatus('Copy failed', 'error');
+  });
+}
+
+function copyShortToken() {
+  const token = document.getElementById('tokenDisplay').textContent;
+  if (!token || token == 'No token captured yet.') {
+    showStatus('No token to copy', 'error');
+    return;
+  }
+  const shortToken = compressAndEncode(token);
+  navigator.clipboard.writeText(shortToken).then(() => {
     showStatus('Copied to clipboard!', 'success');
   }).catch(() => {
     showStatus('Copy failed', 'error');
