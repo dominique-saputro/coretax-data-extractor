@@ -1,6 +1,6 @@
 {
   "name": "Coretax Token Extractor",
-  "version": "2.0",
+  "version": "3.0",
   "manifest_version": 3,
   "description": "Capture Coretax access tokens and send them to Streamlit.",
   "permissions": ["storage", "scripting", "activeTab"],
