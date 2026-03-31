@@ -95,6 +95,8 @@ def keepalive(token):
     url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAliveGetTimeout"
     headers = {
         "Accept":"application/json, text/plain, */*",
+        "Connection": "keep-alive",
+        "Accept-Language": "en-US,en;q=0.9",
         "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 OPR/128.0.0.0",
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
