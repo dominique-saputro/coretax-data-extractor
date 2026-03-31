@@ -100,7 +100,7 @@ def keepalive(token):
     try:
         time.sleep(0.5)
         resp = requests.post(url, headers=headers, timeout=REQUEST_TIMEOUT)
-        if resp.status_code == 200:
+        if resp.status_code == 900:
             st.write("💓 Session refreshed (KeepAlive successful).")
         else:
             st.warning(f"KeepAlive failed: {resp.status_code}")
