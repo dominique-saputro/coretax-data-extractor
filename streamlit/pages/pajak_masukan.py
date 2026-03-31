@@ -66,7 +66,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                     "AsString": False
                 },
                 {
-                    "PropertyName": "TaxInvoiceYear",
+                    "PropertyName": "YearCredit",
                     "Value": year,
                     "MatchMode": "equals",
                     "CaseSensitive": True,
