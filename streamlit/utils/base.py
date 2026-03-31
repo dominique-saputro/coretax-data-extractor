@@ -94,15 +94,16 @@ def keepalive(token):
     """Ping the Coretax KeepAlive endpoint to maintain session"""
     url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAliveGetTimeout"
     headers = {
-        # "Accept":"application/json, text/plain, */*",
-        # "Accept-Encoding":"gzip, deflate, br, zstd",
+        "Accept":"application/json, text/plain, */*",
+        "Accept-Encoding":"gzip, deflate, br",
+        "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 OPR/128.0.0.0",
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
-        # "Cookie":"Portal-xsrf-cookie=CfDJ8LBptqruC79FgZVBt06-M5yb4eRR97PP-W6KN2FP6J_S17Q2EzsOAoW1Bv1rUtMhOrMMoh_hgwtimKeVLQjbarhNucAXy3S8dvxn3mMcOT_z1W5sNOMGEThH1oO3kj_IKU9Jp9onBSOjofzd79erNBc; idsrv.session=0FACECCB67AE0694DA47AEC8B4F471D2; Portal=CfDJ8LBptqruC79FgZVBt06-M5yA_FDCtpBd2O0HpUwmrLZ-Q0DDBtptGR7kIiKFo9C8btEpfS3-FgwMSq_xQFQZFauYan6Hoz69rsR6rYBjQdYmbdRKsZRaM34GEoo2dltKVe8KZxkw0g2ein67Ufqv_xwQHl5WjAZQDJnUb4kfAEh75hQMD4gC2brwsOEvOZ6cNiZLpmkzAMFdoH0oSSUxEQT612pSB1y-EO6tL42KkLnDlwwl_RpTqJfFezsfQbLhYvcB7zCSwCv7b_ier_lBx4UaOiTkCMeufa8kq0KXwM_9R2n55kuJHOF83MKTrgUeL1etBEctNRE-5qJioi7Ugo8doUXNAvzNulsGyw02aocQl7yGvKVxBwmqXudFfiJ2nv62n_cPUv04oh0rhPgtrkXC3FA9sZdSshce5U4E2app7u06DOSQ2duyjk-rdCGeGFffNCsDWMbQSVmcGiXqKAZ_0JEfftxJidgkodQncCOeoFMAOQoQpmSkhGw6AgmZ2aCyIWcpUsMQFWc9G30MwfWCJLgdStQOyrtT_ZFI2UAFvqK5PUSNAbFNVxbtkH_36-v3KK4wSkXVELmzlMcTKmf8QKML45BrjqXXDTYebm2bvRnWvyBHcXW8pMQXZerTzt2rLjlCNacCLG-F5BJoE06kJOs4JSi8_WIP1mqr27hGDFWpSFGuOF1vZzH5-_zgxLzrEBV_FSqqQEkLvUJH_deTR5cvA461WcFQStXC3FP9ehqMb2fX7LorU6FvIWSsgqdo2404RP5IB3bJqMAQ4-7tKoRbmfpS2OUHEzAfGzQEht3Cqj-rJp0Mk9OoxHZ7Isl2AGl2YpXnopEqyOdVMGcttfWjKpL6162ARjs-vHVoMKwUOy4oIAZ0-7cVKn8KwujMcijnYl8tuDJdOXzp1kRdPtezWnyBNCAxp7jrC9BpEwxgJQ45s2BijYH3eaPenK6B-Wq4hWN3yeZYGPQJnwncbLfZwbYqqq1LDXtUc9dr; _ga=GA1.3.72010067.1766022871; _gcl_au=1.1.225310588.1772692610; selectedLanguage=id-ID; sl-challenge-server=local; _gid=GA1.3.1892200312.1774927189; _ga_R5M2ETRGJY=GS2.3.s1774927189$o28$g0$t1774927189$j60$l0$h0; sl-session=o3i9Fu6QzGn5hH/ibgwgRA=="
+        "Cookie":"sl-session=oiiai123123=="
     }
     try:
         time.sleep(0.5)
-        resp = requests.post(url, headers=headers, timeout=REQUEST_TIMEOUT)
+        resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
         if resp.status_code == 200:
             st.write("💓 Session refreshed (KeepAlive successful).")
         else:
