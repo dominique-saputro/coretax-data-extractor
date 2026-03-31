@@ -95,11 +95,10 @@ def keepalive(token):
     url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAliveGetTimeout"
     headers = {
         "Accept":"application/json, text/plain, */*",
-        "Accept-Encoding":"gzip, deflate, br",
         "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 OPR/128.0.0.0",
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
-        "Cookie":"sl-session=oiiai123123=="
+        "Referer":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/reg-home"
     }
     try:
         time.sleep(0.5)
