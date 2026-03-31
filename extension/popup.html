@@ -30,7 +30,7 @@
         color: #0f172a;
       }
       .wrap {
-        width: 460px;
+        width: 540px;
         padding: 12px;
         box-sizing: border-box;
       }
@@ -83,8 +83,8 @@
           "Segoe UI Mono";
         font-size: 11px;
         white-space: pre-wrap;
-        max-height: 80px;
-        max-width: 400px;
+        max-height: 40px;
+        max-width: 500px;
         overflow: hidden;
       }
       .controls {
@@ -203,6 +203,12 @@
         <div class="controls">
           <button id="openApiBtn">Open Extractor</button>
           <button
+            id="copyShortBtn"
+            class="secondary"
+          >
+            Copy Extractor URL
+          </button>
+          <button
             id="refreshBtn"
             class="secondary"
           >
@@ -213,12 +219,6 @@
             class="secondary"
           >
             Copy Token
-          </button>
-          <button
-            id="copyShortBtn"
-            class="secondary"
-          >
-            Copy Short Token
           </button>
         </div>
       </div>

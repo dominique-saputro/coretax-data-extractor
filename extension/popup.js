@@ -101,12 +101,20 @@ function copyToken() {
 
 function copyShortToken() {
   const token = document.getElementById('tokenDisplay').textContent;
+  const taxid = document.getElementById('taxidDisplay').textContent;
+  const taxname = document.getElementById('taxnameDisplay').textContent;
+  const tin = document.getElementById('tinDisplay').textContent;
+  const roles = document.getElementById('rolesDisplay').textContent;
   if (!token || token == 'No token captured yet.') {
-    showStatus('No token to copy', 'error');
+    showStatus('No token to send', 'error');
     return;
   }
   const shortToken = compressAndEncode(token);
-  navigator.clipboard.writeText(shortToken).then(() => {
+
+  // -------- use this for production
+  const apiUrl = `https://coretax-orientcomp.streamlit.app?taxid=${taxid}&taxname=${taxname}&tin=${tin}&roles=${roles}&ct=${shortToken}`;
+
+  navigator.clipboard.writeText(apiUrl).then(() => {
     showStatus('Copied to clipboard!', 'success');
   }).catch(() => {
     showStatus('Copy failed', 'error');
@@ -143,11 +151,6 @@ function openExtractor(){
   // -------- use this for production
   const apiUrl = `https://coretax-orientcomp.streamlit.app?taxid=${taxid}&taxname=${taxname}&tin=${tin}&roles=${roles}&ct=${shortToken}`;
 
-  navigator.clipboard.writeText(apiUrl).then(() => {
-    showStatus('Copied to clipboard!', 'success');
-  }).catch(() => {
-    showStatus('Copy failed', 'error');
-  });
   // -------- use this for localtesting
   // const apiUrl = `http://localhost:8501?token=${t.access_token}`;
   chrome.tabs.create({ url: apiUrl });
