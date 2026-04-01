@@ -8,8 +8,7 @@ import zipfile
 import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# BASE_URL = "https://coretaxdjp.pajak.go.id"
-BASE_URL = "https://43.242.132.12"
+BASE_URL = "https://coretaxdjp.pajak.go.id"
 MAX_RETRIES = 3
 CHUNK_SIZE = 500        
 MAX_WORKERS = 8        
