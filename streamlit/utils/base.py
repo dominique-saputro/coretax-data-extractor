@@ -92,7 +92,7 @@ ROLE_SPT_MAPPING = {
 
 def keepalive(token):
     """Ping the Coretax KeepAlive endpoint to maintain session"""
-    url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAliveGetTimeout"
+    url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAlive"
     headers = {
         "Accept":"application/json, text/plain, */*",
         "Connection": "keep-alive",
