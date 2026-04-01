@@ -149,7 +149,8 @@ function openExtractor(){
   const shortToken = compressAndEncode(token);
 
   // -------- use this for production
-  const apiUrl = `https://coretax-orientcomp.streamlit.app?taxid=${taxid}&taxname=${taxname}&tin=${tin}&roles=${roles}&ct=${shortToken}`;
+  // const apiUrl = `https://coretax-orientcomp.streamlit.app?taxid=${taxid}&taxname=${taxname}&tin=${tin}&roles=${roles}&ct=${shortToken}`;
+  const apiUrl = `http://103.28.22.140:8501?taxid=${taxid}&taxname=${taxname}&tin=${tin}&roles=${roles}&ct=${shortToken}`;
 
   // -------- use this for localtesting
   // const apiUrl = `http://localhost:8501?token=${t.access_token}`;
