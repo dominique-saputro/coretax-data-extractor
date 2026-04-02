@@ -50,6 +50,47 @@ if st.button("🔍 Fetch Data from Coretax"):
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
+    # payload = {
+    #         "BuyerTaxpayerAggregateIdentifier": f"{taxpayer_id}",
+    #         "First": 0,
+    #         "Rows": rows,
+    #         "SortField": "",
+    #         "SortOrder": 1,
+    #         "Filters": [
+    #             {
+    #                 "PropertyName": "TaxInvoicePeriod",
+    #                 "Value": period,
+    #                 "MatchMode": "contains",
+    #                 "CaseSensitive": True,
+    #                 "AsString": False
+    #             },
+    #             {
+    #                 "PropertyName": "TaxInvoiceYear",
+    #                 "Value": year,
+    #                 "MatchMode": "equals",
+    #                 "CaseSensitive": True,
+    #                 "AsString": False
+    #             },
+    #             {
+    #                 "PropertyName": "PeriodCredit",
+    #                 "Value": [
+    #                     "TD.00701"
+    #                 ],
+    #                 "MatchMode": "contains",
+    #                 "CaseSensitive": True,
+    #                 "AsString": False
+    #             },
+    #             {
+    #                 "PropertyName": "TaxInvoiceStatus",
+    #                 "Value": taxpayer_status,
+    #                 "MatchMode": "equals",
+    #                 "CaseSensitive": True,
+    #                 "AsString": False
+    #             }
+    #         ],
+    #         "LanguageId": "id-ID",
+    #         "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
+    #     }
     if taxpayer_status != "APPROVED": 
         payload = {
             "BuyerTaxpayerAggregateIdentifier": f"{taxpayer_id}",
@@ -200,8 +241,8 @@ if st.button("🔍 Fetch Data from Coretax"):
             for payload in payloads:  # assume this is your list of invoices
                 inv_details = payload["FormDataObj"]["TransactionDetailsData"]["Rows"]
                 for d in inv_details:
-                    period_code = payload.get("FormDataObj", {}).get("TransactionDocumentData", {}).get("Period", "")
-                    year = payload.get("FormDataObj", {}).get("TransactionDocumentData", {}).get("Year", "")
+                    period_code = payload.get("FormDataObj", {}).get("TransactionDocumentData", {}).get("PeriodCredit", "")
+                    year = payload.get("FormDataObj", {}).get("TransactionDocumentData", {}).get("YearCredit", "")
 
                     sptmasa_value = base.get_period_end_date(period_code, year)
 
@@ -227,7 +268,7 @@ if st.button("🔍 Fetch Data from Coretax"):
                         # add seller info
                         "SellerTIN": payload.get("SellerTIN", ""),
                         "SellerName": payload.get("SellerName", ""),
-                        "InvoiceStatus": payload.get("InvoiceStatus", ""),
+                        "InvoiceStatus": payload.get("BuyerStatus", ""),
                     }
                     all_rows.append(row)
 
