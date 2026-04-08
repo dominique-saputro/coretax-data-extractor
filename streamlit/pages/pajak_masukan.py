@@ -91,7 +91,7 @@ if st.button("🔍 Fetch Data from Coretax"):
     #         "LanguageId": "id-ID",
     #         "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
     #     }
-    if taxpayer_status != "APPROVED": 
+    if taxpayer_status == "APPROVED": 
         payload = {
             "BuyerTaxpayerAggregateIdentifier": f"{taxpayer_id}",
             "First": 0,
