@@ -102,7 +102,8 @@ def keepalive(token):
         "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 OPR/128.0.0.0",
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
-        "Referer":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/reg-home"
+        "Referer":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/my-profile",
+        "Request_from":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/my-profile"
     }
     try:
         time.sleep(0.5)
