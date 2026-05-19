@@ -39,28 +39,10 @@ if st.button("🔍 Fetch Data from Coretax"):
     status_placeholder.info("Fetching data from Coretax API...")
    
     url = BASE_URL + "/einvoiceportal/api/outputinvoice/list"
-    # headers = {
-    #     "Authorization": f"Bearer {token}",
-    #     "Content-Type": "application/json"
-    # } 
     headers = {
-        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:150.0) Gecko/20100101 Firefox/150.0",
-        "accept": "application/json, text/plain, /",
-        "accept-language": "en-GB,en;q=0.9",
-        "referer": "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax",
-        "content-type": "application/json",
-        "authorization": f"Bearer {token}",
-        "request_from": "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax",
-        "languageid": "id-ID",
-        "origin": "https://coretaxdjp.pajak.go.id",
-        "sec-gpc": "1",
-        "connection": "keep-alive",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
-        "priority": "u=0",
-        "te": "trailers"
-    }
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    } 
     payload = {
         "SellerTaxpayerAggregateIdentifier": f"{taxpayer_id}",
         "First": 0,
