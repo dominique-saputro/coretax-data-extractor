@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="loginSection">
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+
+    <img id="captchaImage">
+
+    <button id="refreshCaptcha">
+      Refresh CAPTCHA
+    </button>
+
+    <input id="captchaInput" placeholder="CAPTCHA">
+
+    <button id="loginBtn">
+      Login
+    </button>
+  </div>
+
+  <div id="impersonateSection">
+    <select id="accounts">
+      <option value="">-</option>
+    </select>
+    <button id="impBtn">
+      Impersonate
+    </button>
+  </div>
+
+  <div id="status"></div>
+
+  <script src="pako.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

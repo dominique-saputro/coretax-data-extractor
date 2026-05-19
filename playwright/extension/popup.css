@@ -1,0 +1,40 @@
+body {
+    width: 300px;
+    padding: 12px;
+    font-family: Arial;
+}
+
+input {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+button {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+}
+
+#status {
+    margin-top: 10px;
+}
+
+#impersonateSection {
+    display: none;
+}
+
+select {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    box-sizing: border-box;
+}

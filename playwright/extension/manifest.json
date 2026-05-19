@@ -1,0 +1,19 @@
+{
+  "name": "VPS Login Bridge",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": ["http://103.28.22.140/*"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["pako.min.js", "page_hook.js"],
+      "matches": ["https://coretaxdjp.pajak.go.id/*"]
+    }
+  ]
+}

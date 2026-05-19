@@ -69,6 +69,7 @@ WHITELIST = [
     "3578092407720001", #ANTON
     "3578241110000001", #JASON
     "5101042704880003", #EKO
+    "3578096402000005", #MONIQ
 ]
 
 ROLE_SPT_MAPPING = {
@@ -95,14 +96,32 @@ ROLE_SPT_MAPPING = {
 def keepalive(token):
     """Ping the Coretax KeepAlive endpoint to maintain session"""
     url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAlive"
+    # headers = {
+    #     "Accept":"application/json, text/plain, */*",
+    #     "Accept-Language": "en-US,en;q=0.9",
+    #     "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 OPR/128.0.0.0",
+    #     "Authorization": f"Bearer {token}",
+    #     "Content-Type": "application/json",
+    #     "Referer":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/my-profile",
+    #     "Request_from":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/my-profile"
+    # }
     headers = {
-        "Accept":"application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 OPR/128.0.0.0",
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        "Referer":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/my-profile",
-        "Request_from":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/my-profile"
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:150.0) Gecko/20100101 Firefox/150.0",
+        "accept": "application/json, text/plain, /",
+        "accept-language": "en-GB,en;q=0.9",
+        # "referer": "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax",
+        "content-type": "application/json",
+        "authorization": f"Bearer {token}",
+        # "request_from": "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax",
+        "languageid": "id-ID",
+        "origin": "https://coretaxdjp.pajak.go.id",
+        "sec-gpc": "1",
+        "connection": "keep-alive",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "priority": "u=0",
+        "te": "trailers"
     }
     try:
         time.sleep(0.5)
