@@ -61,7 +61,7 @@ function extractToken() {
         tinDisplay.textContent = response.tin;
         const rolesDisplay = document.getElementById('rolesDisplay');
         rolesDisplay.textContent = assignRoles(response.roles);
-        
+
         const tokenDisplay = document.getElementById('tokenDisplay');
         tokenDisplay.textContent = response.token;
         chrome.storage.local.set({ accessToken: response.token, tokenTime: Date.now() });
@@ -112,7 +112,7 @@ function copyShortToken() {
   const shortToken = compressAndEncode(token);
 
   // -------- use this for production
-  const apiUrl = `https://coretax-orientcomp.streamlit.app?taxid=${taxid}&taxname=${taxname}&tin=${tin}&roles=${roles}&ct=${shortToken}`;
+  const apiUrl = `?taxid=${taxid}&taxname=${taxname}&tin=${tin}&roles=${roles}&ct=${shortToken}`;
 
   navigator.clipboard.writeText(apiUrl).then(() => {
     showStatus('Copied to clipboard!', 'success');
@@ -136,7 +136,7 @@ function compressAndEncode(token) {
     .replace(/=+$/, '');
 }
 
-function openExtractor(){
+function openExtractor() {
   const token = document.getElementById('tokenDisplay').textContent;
   const taxid = document.getElementById('taxidDisplay').textContent;
   const taxname = document.getElementById('taxnameDisplay').textContent;

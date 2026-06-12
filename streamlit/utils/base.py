@@ -7,11 +7,13 @@ import io
 import zipfile
 import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from requests.exceptions import HTTPError, ConnectionError, Timeout, RequestException
+
 
 BASE_URL = "https://coretaxdjp.pajak.go.id"
 MAX_RETRIES = 3
 CHUNK_SIZE = 500        
-MAX_WORKERS = 8        
+MAX_WORKERS = 3        
 REQUEST_TIMEOUT = (10, 120)
 
 month_mapping = {
@@ -95,44 +97,49 @@ ROLE_SPT_MAPPING = {
 
 def keepalive(token):
     """Ping the Coretax KeepAlive endpoint to maintain session"""
-    url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAliveGetTimeout"
-    headers = {
-        "Accept":"application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 OPR/128.0.0.0",
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        "Referer":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/my-profile",
-        "Request_from":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/my-profile"
-    }
+    url = BASE_URL + "/identityproviderportal/api/Account/SessionKeepAlive"
     # headers = {
-    #     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:150.0) Gecko/20100101 Firefox/150.0",
-    #     "accept": "application/json, text/plain, /",
-    #     "accept-language": "en-GB,en;q=0.9",
-    #     "referer": "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax",
-    #     "content-type": "application/json",
+    #     "accept":"application/json, text/plain, */*",
+    #     "accept-language": "en-US,en;q=0.9",
+    #     "user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 OPR/128.0.0.0",
     #     "authorization": f"Bearer {token}",
-    #     "request_from": "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax",
-    #     "languageid": "id-ID",
-    #     "origin": "https://coretaxdjp.pajak.go.id",
-    #     "sec-gpc": "1",
-    #     "connection": "keep-alive",
-    #     "sec-fetch-dest": "empty",
-    #     "sec-fetch-mode": "cors",
-    #     "sec-fetch-site": "same-origin",
-    #     "priority": "u=0",
-    #     "te": "trailers"
+    #     "content-type": "application/json",
+    #     "referer":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/my-profile",
+    #     "request_from":"https://coretaxdjp.pajak.go.id/registration-portal/id-ID/my-profile"
     # }
+    headers = {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:150.0) Gecko/20100101 Firefox/150.0",
+        "accept": "application/json, text/plain, /",
+        "accept-language": "en-GB,en;q=0.9",
+        "referer": "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax",
+        "content-type": "application/json",
+        "authorization": f"Bearer {token}",
+        "request_from": "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax",
+        "languageid": "id-ID",
+        "origin": "https://coretaxdjp.pajak.go.id",
+        "sec-gpc": "1",
+        "connection": "keep-alive",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "priority": "u=0",
+        "te": "trailers"
+    }
     try:
         time.sleep(0.5)
         resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
-        if resp.status_code == 200:
-            st.write("💓 Session refreshed (KeepAlive successful).")
-        else:
-            st.warning(f"KeepAlive failed: {resp.status_code}")
-    except requests.exceptions.RequestException as e:
-        st.warning(f"⚠️ KeepAlive error: {e}")
-
+        resp.raise_for_status()
+    except HTTPError as http_err:
+        st.warning(f"HTTP error occurred: {http_err}")
+    except ConnectionError as conn_err:
+        st.warning(f"Connection error: {conn_err}")
+    except Timeout as timeout_err:
+        st.warning(f"Timeout error: {timeout_err}")
+    except RequestException as err:
+        st.warning(f"An unexpected error occurred: {err}")
+    else:
+        st.write("💓 Session refreshed (KeepAlive successful).")
+        
 def format_date(date_str):
     """Convert ISO date string (2025-09-17T00:00:00) to YYYY/MM/DD format."""
     try:
@@ -244,7 +251,7 @@ def fetch_details(record_ids,token,taxpayer_id,url,headers):
         expanded=True
     ) as status:
 
-        keepalive(token)
+        # keepalive(token)
 
         details, fails = fetch_chunk_parallel(
             chunk,
@@ -269,7 +276,7 @@ def fetch_details(record_ids,token,taxpayer_id,url,headers):
                 state="running"
             )
 
-            keepalive(token)
+            # keepalive(token)
 
             retry_details, retry_fails = fetch_chunk_parallel(
                 st.session_state.fails,
