@@ -160,3 +160,32 @@ def parse_lampiran(spt_choice,details):
             }
             
     return dfs
+
+def parse_bupots(spt_choice,details):
+    """Parse list of invoice JSON payloads into multiple DataFrames."""
+    df = pd.DataFrame()
+
+    if not details:
+        return df
+    
+    # Extract each section conditionally
+    match spt_choice:
+        case 'PPh21':
+            try:
+                df = pd.DataFrame(details)[["EmployerNik", "EmployerName", "WithholdingSlipsNumber", "WithholdingSlipsDate", "TaxObjectCode","IncomeTaxStatus","TaxBase", "TaxRate", "IncomeTax","TaxCertificateCode", "WithholdingSlipsStatus"]]
+            except Exception as e:
+                print("Error parsing df:", e)
+                df = pd.DataFrame(columns=["EmployerNik", "EmployerName", "WithholdingSlipsNumber", "WithholdingSlipsDate", "TaxObjectCode","IncomeTaxStatus","TaxBase", "TaxRate", "IncomeTax","TaxCertificateCode", "WithholdingSlipsStatus"])
+            
+        case 'Unifikasi':
+            try:
+                df = pd.DataFrame(details)[["EmployerNik", "EmployerName", "WithholdingSlipsNumber", "WithholdingSlipsDate","TaxArticle", "TaxObjectCode", "IncomeTaxStatus", "TaxBase", "TaxRate", "IncomeTax","TaxCertificateCode", "WithholdingSlipsStatus"]]
+            except Exception as e:
+                print("Error parsing df:", e)
+                df = pd.DataFrame(columns=["EmployerNik", "EmployerName", "WithholdingSlipsNumber", "WithholdingSlipsDate","TaxArticle", "TaxObjectCode", "IncomeTaxStatus", "TaxBase", "TaxRate", "IncomeTax","TaxCertificateCode", "WithholdingSlipsStatus"])
+            
+    if "TaxCertificateCode" in df.columns:
+        df["TaxCertificateCode"] = df["TaxCertificateCode"].astype(str).str.strip()
+        df.loc[df["TaxCertificateCode"] == "9", "TaxCertificateCode"] = "Tanpa Fasilitas"
+        
+    return df

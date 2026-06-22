@@ -8,6 +8,7 @@ import io
 import zipfile
 import base64
 from utils import base
+from utils import parse_bupots
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BASE_URL = base.BASE_URL
@@ -25,70 +26,77 @@ roles = st.session_state.get("roles", None)
 base.auth_header(token,taxpayer_id,taxpayer_name)
     
 # --- 2️⃣ Parameters ---
+month_mapping = {
+    "January": "0101",
+    "February": "0202",
+    "March": "0303",
+    "April": "0404",
+    "May": "0505",
+    "June": "0606",
+    "July": "0707",
+    "August": "0808",
+    "September": "0909",
+    "October": "1010",
+    "November": "1111",
+    "December": "1212",
+}
+
 spt_options = base.get_allowed_roles(roles)
-spt_options.pop('PPN')
+if spt_options['PPN'] is not None:
+    spt_options.pop('PPN')
+# st.write(spt_options.keys())
 
-today = datetime.datetime.now()
-_, last_day = calendar.monthrange(today.year, today.month)
-
-st.subheader("Query Parameters")
-date = st.date_input(
-    "Select date range",
-    (datetime.date(today.year,today.month,1),datetime.date(today.year,today.month,last_day)),
-    format="YYYY/MM/DD")
+period,year,rows = base.parameter_body(month_mapping)
+period_num = int(period[:2]) 
 spt_choice = st.selectbox(
-    "Select Bupot",
+    "Select SPT",
     options=list(spt_options.keys()),
     index=0 if spt_options else None
 )
 if spt_choice is not None:
     spt_type = spt_options[spt_choice]['code']
-    search_key = spt_options[spt_choice]['search_key']
 else:
-    st.warning("Not authorized for your role.")
-    st.stop()   
+    st.warning("No SPT available for your role.")
+    st.stop()  
 
 # --- 3️⃣ Fetch Data ---
 if st.button("🔍 Fetch Data from Coretax"):
     status_placeholder = st.empty()
     status_placeholder.info("Fetching data from Coretax API...")
     
+    taxperiod = period + str(year)
+    
     download_list = []
 
-    url = BASE_URL + "/documentmanagementportal/api/list/listTaxpayerDocuments"
+    url = BASE_URL + "/withholdingslipsportal/api/GetMyWithholdingSlip"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
-    } 
+    }
+    
+    match spt_choice:
+        case 'Unifikasi':
+            bupot_type = 'EBUPOTBPU'
+        case 'PPh21':
+            bupot_type = 'EBUPOTBP21'
     
     payload = {
-        "TaxpayerAggregateIdentifier": f"{taxpayer_id}",
-        "IsCaseCompleted": True,
-        "IsSkipInvoiceDocument": False,
+        "WithholdingType": f"{bupot_type}",
+        "TaxPeriod": f"TD.007{period[:2]}",
+        "TaxYear":  f"{year}",
         "First": 0,
-        "Rows": 10000,
-        "SortField": "CreationDatetime",
+        "Rows": f"{rows}",
+        "SortField": "",
         "SortOrder": 1,
         "Filters": [
             {
-                "PropertyName": "DocumentDate",
-                "Value": [
-                    f"{date[0].strftime("%Y/%m/%d")}",
-                    f"{date[1].strftime("%Y/%m/%d")}"
-                ],
-                "MatchMode": "between",
-                "CaseSensitive": True,
-                "AsString": False
-            },
-            {
-                "PropertyName": "DocumentTitle",
-                "Value": f"{search_key}",
-                "MatchMode": "startsWith",
-                "CaseSensitive": False,
-                "AsString": False
+                "MatchMode": "equals",
+                "PropertyName": "TaxPeriodCode",
+                "Value": f"{taxperiod}"
             }
         ],
-        "LanguageId": "id-ID"
+        "LanguageId": "id-ID",
+        "TaxpayerAggregateIdentifier": f"{taxpayer_id}"
     }
 
     try:
@@ -100,158 +108,45 @@ if st.button("🔍 Fetch Data from Coretax"):
         df = pd.json_normalize(records)
         
         # extract RecordIds from DataFrame
-        if len(records) > 0:   
-            wanted_keys = {
-                "AggregateIdentifier",
-                "DocumentNumber",
-                "LetterNumber",
-            }
-
-            download_list.extend(
-                {k: r.get(k) for k in wanted_keys}
-                for r in records
-            )
-        else:
+        reverse_month_mapping = {v: k for k, v in month_mapping.items()}
+        if len(records) == 0:
+            month_name = reverse_month_mapping[period]
             status_placeholder.empty()
-            st.warning(f"No records found for {spt_choice} - {date[0].strftime("%Y/%m/%d")} ~ {date[1].strftime("%Y/%m/%d")}")
+            st.warning(f"No records found for {month_name} {year}")
             st.stop()
+            
+        details = records
+        st.success(f"✅ Success! Retrieved SPT {spt_choice} {reverse_month_mapping[period]} {year} records.")
+        status_placeholder.empty()
         
     except requests.exceptions.RequestException as e:
         status_placeholder.empty()
         st.warning(f"⚠️ Failed to retrieve download request: {e}")
-        
-                   
-    st.success(f"✅ Success! Retrieved download request {len(download_list)} files.")
-    status_placeholder.empty()
-    # st.write(download_list)
-        
-    # get details for all months
-    MAX_WORKERS = 3
-    MAX_RETRIES = 3
-
-    status_placeholder.info("Starting download from Coretax API...")
-
-    total = len(download_list)
-    progress_bar = st.progress(0)
-    status_text = st.empty()
-
-    details = []
-    fails = []
-
-    url = BASE_URL + "/documentmanagementportal/api/download"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    
-    def download_pdf(row):
-        payload = {
-            "DocumentId": row["DocumentNumber"],
-            "TaxpayerAggregateIdentifier": f"{taxpayer_id}",
-            "IsNeedWatermark": True,
-            "FormCallerName": "TaxpayerDocuments",
-            "DocumentAggregateIdentifier": row["AggregateIdentifier"]
-        }
-
-        for attempt in range(1, MAX_RETRIES + 1):
-            try:
-                resp = requests.post(
-                    url,
-                    headers=headers,
-                    json=payload,
-                    timeout=(10, 120),
-                )
-                resp.raise_for_status()
-
-                content = resp.content
-                filename = f"{row['LetterNumber']}.pdf"
-
-                if not content:
-                    raise ValueError("Empty PDF content")
-
-                return {
-                    "success": True,
-                    "data": {
-                        "Content": content,
-                        "FileName": filename,
-                    },
-                }
-
-            except Exception as e:
-                if attempt == MAX_RETRIES:
-                    return {
-                        "success": False,
-                        "row": row,
-                        "error": str(e),
-                    }
-
-                time.sleep(1 * attempt)  # simple backoff
-                
-    completed = 0
-
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = [
-            executor.submit(download_pdf, row)
-            for row in download_list
-        ]
-
-        for future in as_completed(futures):
-            result = future.result()
-            completed += 1
-
-            status_text.info(f"Fetching file {completed}/{total}")
-            progress_bar.progress(completed / total)
-
-            if result["success"]:
-                details.append(result["data"])
-            else:
-                fails.append(result["row"])
-    
-    status_text.empty()
-    progress_bar.empty()
-
-    if fails:
-        st.warning(f"⚠️ {len(fails)} Bupot gagal download, Coba download manual untuk:")
-        for i,fail in enumerate(fails):
-            st.warning(f"{i+1}. {fail["LetterNumber"]}")
-    st.success(f"✅ Downloaded {len(details)} files successfully")
 
 # --- 4️⃣ Compile PDF into ZIP ---                
     if details:
         try:
             status_placeholder.empty()
-            status_placeholder.info("Compiling into zip file...")
+            st.success(f"✅ Fetched details for {len(details)} records.")
+            status_placeholder.info("Compiling into Excel...")
             
-            zip_buffer = io.BytesIO()
-            total = len(details)
+            detail_data = parse_bupots(spt_choice,details)      
+            st.dataframe(detail_data)
 
-            progress = st.progress(0)
-            status = st.empty()
-
-            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
-                for i,r in enumerate(details, start=1):
-                    status.info(f"Zipping {i}/{total}")
-                    pdf_bytes = r["Content"]
-                    filename = r.get("FileName", "file.pdf")
-                    zipf.writestr(filename, pdf_bytes)
-                    progress.progress(i / total)
-
-            status.empty()
-            progress.empty()
-
-            zip_buffer.seek(0)
-            
+            # Export to excel
+            excel_buffer = io.BytesIO()
+            detail_data.to_excel(excel_buffer, index=False, engine="openpyxl")
             st.download_button(
-                "📁 Download Bupot",
-                data=zip_buffer,
-                file_name=f"bupot_{spt_choice.lower()}.zip",
-                mime="application/zip"
+                "📊 Download Details Excel",
+                data=excel_buffer.getvalue(),
+                file_name=f"bupot_{spt_choice}_{taxperiod}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
             status_placeholder.empty()
         except Exception as e:
             st.error(f"Error: {e}")
     else:
-        st.warning("No details were retrieved.")   
+        st.warning("No details were retrieved.") 
         
     
 

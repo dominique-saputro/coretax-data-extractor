@@ -232,7 +232,7 @@ def parameter_body(month_mapping=month_mapping):
     )
     period = month_mapping[months]
     year = st.number_input("TaxInvoiceYear", value=current_year)
-    rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=200, step=100)
+    rows = st.number_input("Number of Rows", min_value=100, max_value=10000, value=1000, step=100)
     return period,year,rows
 
 def fetch_details(record_ids,token,taxpayer_id,url,headers):
