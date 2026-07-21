@@ -206,7 +206,7 @@ if st.button("🔍 Fetch Data from Coretax"):
 
                         # add seller info
                         "BuyerTIN": payload.get("BuyerTIN", ""),
-                        "BuyerName": payload.get("BuyerName", ""),
+                        "BuyerName": payload.get("FormDataObj", {}).get("BuyerInformationData", {}).get("BuyerTaxpayerNameInClear", ""),
                         "InvoiceStatus": payload.get("InvoiceStatus", ""),
                     }
                     all_rows.append(row)
